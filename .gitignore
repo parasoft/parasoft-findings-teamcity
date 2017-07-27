@@ -1,12 +1,11 @@
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
+.classpath
+.project
+/.settings/
+/build/target
+/target/
+/parasoft-findings-teamcity-agent/target
+/parasoft-findings-teamcity-server/target
+/parasoft-findings-teamcity-common/target
+.arcconfig
 
-# Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
-!/.mvn/wrapper/maven-wrapper.jar
+/bin/
