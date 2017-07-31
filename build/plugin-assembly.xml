@@ -23,8 +23,8 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
-                <include>parasoft-findings-teamcity:parasoft-findings-teamcity-server</include>
-                <include>parasoft-findings-teamcity:parasoft-findings-teamcity-common</include>
+                <include>com.parasoft:parasoft-findings-teamcity-server</include>
+                <include>com.parasoft:parasoft-findings-teamcity-common</include>
             </includes>
             <binaries>
                 <outputDirectory>server</outputDirectory>
