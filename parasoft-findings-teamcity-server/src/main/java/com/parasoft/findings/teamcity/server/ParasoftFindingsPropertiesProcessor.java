@@ -16,12 +16,22 @@
 
 package com.parasoft.findings.teamcity.server;
 
+import com.parasoft.findings.teamcity.common.*;
+
 import java.util.*;
 
 import jetbrains.buildServer.serverSide.*;
 
-public class ParasoftFindingsPropertiesProcessor implements PropertiesProcessor {
+public class ParasoftFindingsPropertiesProcessor implements PropertiesProcessor, 
+    ParasoftFindingsProperties {
+    private static final String STR_CANNOT_BE_EMPTY = "SOAtest Reports Location filed cannot be empty.";
+
     public Collection<InvalidProperty> process(Map<String, String> properties) {
-        return Collections.emptySet();
+        Collection<InvalidProperty> invalidProperties = new ArrayList<InvalidProperty>();
+        String stReportsLocation = properties.get(ST_REPORTS_SOURCE);
+        if (stReportsLocation == null || stReportsLocation.trim().isEmpty()) {
+            invalidProperties.add(new InvalidProperty(ST_REPORTS_SOURCE, STR_CANNOT_BE_EMPTY));
+        }
+        return invalidProperties;
     }
 }

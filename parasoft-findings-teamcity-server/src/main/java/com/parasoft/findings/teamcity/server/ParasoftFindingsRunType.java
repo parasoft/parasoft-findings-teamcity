@@ -21,16 +21,22 @@ import com.parasoft.findings.teamcity.common.*;
 import java.util.*;
 
 import jetbrains.buildServer.serverSide.*;
+import jetbrains.buildServer.web.openapi.*;
 
-public class ParasoftFindingsRunType extends RunType implements ParasoftFindingsPluginType {
+public class ParasoftFindingsRunType extends RunType implements ParasoftFindingsPluginType,
+    ParasoftFindingsProperties {
     private static final String NL_EDIT_JSP = "parasoft-findings-edit.jsp";
     private static final String NL_VIEW_JSP = "parasoft-findings-view.jsp";
+    private static final String NL_DEFAULT_ST_REPORTS_LOCATION = "/SOAtestReports";
 
     // TODO: localize
     // TODO: replace with actual strings
-    private static final String STR_DISPLAY_NAME = "Parasoft Findings PlugIn";
-    private static final String STR_DESCRIPTION = "Parasoft Findings PlugIn description";
+    private static final String STR_DISPLAY_NAME = "Parasoft Findings";
+    private static final String STR_DESCRIPTION = "Parasoft SOAtest reporting.";
 
+    public ParasoftFindingsRunType(RunTypeRegistry runTypeRegistry, PluginDescriptor pluginDescriptor) {
+        runTypeRegistry.registerRunType((RunType)this);
+    }
     @Override
     public String getDescription() {
         return STR_DESCRIPTION;
@@ -48,8 +54,8 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
 
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
-        // TODO: fill in defaults
         Map<String, String> defaults = new HashMap<String, String>();
+        defaults.put(ST_REPORTS_SOURCE, NL_DEFAULT_ST_REPORTS_LOCATION);
         return defaults;
     }
 

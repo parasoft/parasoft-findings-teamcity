@@ -19,8 +19,8 @@ package com.parasoft.findings.teamcity.server;
 import com.parasoft.findings.teamcity.common.*;
 
 public class ParasoftFindingsPropertiesBean implements ParasoftFindingsProperties {
-    public String getParamOne() {
-        return PARAM_ONE;
+    public String getSoatestReportsLocation() {
+        return ST_REPORTS_SOURCE;
     }
 }
 

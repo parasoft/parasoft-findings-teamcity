@@ -17,6 +17,6 @@
 package com.parasoft.findings.teamcity.common;
 
 public interface ParasoftFindingsProperties {
-    String PARAM_ONE = "param.one";
+    String ST_REPORTS_SOURCE = "st.reports.location";
 }
 

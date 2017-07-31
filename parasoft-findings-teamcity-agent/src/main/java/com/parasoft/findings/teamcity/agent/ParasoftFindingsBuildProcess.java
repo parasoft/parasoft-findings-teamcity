@@ -18,16 +18,27 @@ package com.parasoft.findings.teamcity.agent;
 
 import com.parasoft.findings.teamcity.common.*;
 
+import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import jetbrains.buildServer.*;
 import jetbrains.buildServer.agent.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, ParasoftFindingsProperties {
+    private static final Logger LOG;
+
+    static {
+        // logs into ./buildAgent/logs/wrapper.log
+        LOG = Logger.getLogger(ParasoftFindingsAgent.class.getName());
+    }
+
     private boolean _done = false;
     private BuildRunnerContext _context;
+    private AgentRunningBuild _build;
 
     public ParasoftFindingsBuildProcess(AgentRunningBuild build, BuildRunnerContext context) {
+        _build = build;
         _context = context;
     }
 
@@ -46,8 +57,8 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, ParasoftFindi
         _done = false;
         try {
             doWork();
-        } catch (Throwable t) {
-            // TODO: handle
+        } catch (final Throwable t) {
+            LOG.log(Level.SEVERE, t.getMessage(), t);
         } finally {
             _done = true;
         }
@@ -55,7 +66,10 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, ParasoftFindi
 
     private void doWork() {
         Map<String, String> params = _context.getRunnerParameters();
-        String p1 = params.get(PARAM_ONE);
+        String stReportsLocation = params.get(ST_REPORTS_SOURCE);
+        LOG.info("Reading SOAtest reports from "+stReportsLocation); // relative to checkout dir
+        File checkoutDir = _build.getCheckoutDirectory();
+        LOG.info("Writing transformed SOAtest reports to "+checkoutDir);
     }
 
     public BuildFinishedStatus waitFor() throws RunBuildException {
