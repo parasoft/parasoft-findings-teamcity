@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import jetbrains.buildServer.*;
 import jetbrains.buildServer.agent.*;
+import jetbrains.buildServer.util.pathMatcher.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, ParasoftFindingsProperties {
     private static final Logger LOG;
@@ -70,6 +71,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, ParasoftFindi
         LOG.info("Reading SOAtest reports from "+stReportsLocation); // relative to checkout dir
         File checkoutDir = _build.getCheckoutDirectory();
         LOG.info("Writing transformed SOAtest reports to "+checkoutDir);
+        List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {stReportsLocation}, null);
     }
 
     public BuildFinishedStatus waitFor() throws RunBuildException {
