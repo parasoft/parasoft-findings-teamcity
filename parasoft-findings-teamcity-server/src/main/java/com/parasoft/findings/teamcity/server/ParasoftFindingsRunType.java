@@ -27,7 +27,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     ParasoftFindingsProperties {
     private static final String NL_EDIT_JSP = "parasoft-findings-edit.jsp";
     private static final String NL_VIEW_JSP = "parasoft-findings-view.jsp";
-    private static final String NL_DEFAULT_ST_REPORTS_LOCATION = "/SOAtestReports";
+    private static final String NL_DEFAULT_ST_REPORTS_LOCATION = "**/rep*.xml";
 
     // TODO: localize
     // TODO: replace with actual strings

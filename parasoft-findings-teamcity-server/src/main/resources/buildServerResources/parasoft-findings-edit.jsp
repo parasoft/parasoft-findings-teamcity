@@ -15,6 +15,7 @@
     <th><label for="${props.soatestReportsLocation}">SOAtest Reports Location: <l:star /></label></th>
     <td>
         <props:textProperty id="${props.soatestReportsLocation}" name="${props.soatestReportsLocation}" className="longField"/>
+        <span class="error" id="error_${props.soatestReportsLocation}"></span>
         <span class="smallNote">Relative location in project check out directory.</span>
     </td>
   </tr>
