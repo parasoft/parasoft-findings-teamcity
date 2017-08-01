@@ -32,7 +32,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     // TODO: localize
     // TODO: replace with actual strings
     private static final String STR_DISPLAY_NAME = "Parasoft Findings";
-    private static final String STR_DESCRIPTION = "Parasoft SOAtest reporting.";
+    private static final String STR_DESCRIPTION = "Parasoft SOAtest reporting";
 
     public ParasoftFindingsRunType(RunTypeRegistry runTypeRegistry, PluginDescriptor pluginDescriptor) {
         runTypeRegistry.registerRunType((RunType)this);
