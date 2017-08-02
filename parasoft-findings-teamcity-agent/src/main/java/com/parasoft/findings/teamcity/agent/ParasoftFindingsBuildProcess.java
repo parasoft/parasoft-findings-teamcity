@@ -28,6 +28,7 @@ import javax.xml.transform.stream.*;
 
 import jetbrains.buildServer.*;
 import jetbrains.buildServer.agent.*;
+import jetbrains.buildServer.messages.*;
 import jetbrains.buildServer.util.pathMatcher.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
@@ -119,14 +120,14 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             for (File from : reports) {
                 _build.getBuildLogger().message("Preparing to transform "+from.getAbsolutePath());
                 String targetFileName = PREFIX + from.getName();
-                File to = new File(checkoutDir, targetFileName);
-                transform(from, to, SOATEST_XSL);
+                File to = new File(from.getParentFile(), targetFileName);
+                transform(from, to, SOATEST_XSL, checkoutDir);
                 _build.getBuildLogger().message("Wrote transformed report to "+to.getAbsolutePath());
             }
         }
     }
 
-    private void transform(File from, File to, String xslFile) {
+    private void transform(File from, File to, String xslFile, File checkoutDir) {
         try {
             StreamSource xml = new StreamSource(new FileInputStream(from));
             StreamSource xsl = new StreamSource(getClass().getResourceAsStream(xslFile));
@@ -134,6 +135,13 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             Transformer processor = tFactory.newTransformer(xsl);
             processor.setErrorListener(xsltErrorListener);
             processor.transform(xml, target);
+
+            // Send a notification to TC that a JUnit report is ready to be consumed.
+            // This allows running the plug-in build step without having to configure 
+            // the XML Report Processing build feature in a TC project.
+            String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
+            _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                    ("##teamcity[importData type='junit' path='"+relativePath+"']"));
         } catch (TransformerConfigurationException e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         } catch (TransformerException e) {
