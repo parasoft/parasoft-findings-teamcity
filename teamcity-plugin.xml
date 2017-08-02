@@ -5,12 +5,10 @@
     <display-name>Parasoft Findings</display-name>
     <version>1.0.0</version>
     <description>Parasoft SOAtest reporting.</description>
-    <download-url>Plugin download URL</download-url>
-    <email>Plugin author e-mail</email>
+    <email>support@parasoft.com</email>
     <vendor>
       <name>Parasoft</name>
       <url>http://www.parasoft.com</url>
-      <logo>Plugin vendor logo URL</logo>
     </vendor>
   </info>
   <deployment use-separate-classloader="true" />
