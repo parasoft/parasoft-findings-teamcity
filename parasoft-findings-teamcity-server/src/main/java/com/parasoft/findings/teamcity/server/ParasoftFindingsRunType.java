@@ -25,26 +25,24 @@ import jetbrains.buildServer.web.openapi.*;
 
 public class ParasoftFindingsRunType extends RunType implements ParasoftFindingsPluginType,
     ParasoftFindingsProperties {
-    private static final String NL_EDIT_JSP = "parasoft-findings-edit.jsp";
-    private static final String NL_VIEW_JSP = "parasoft-findings-view.jsp";
-    private static final String NL_DEFAULT_ST_REPORTS_LOCATION = "**/rep*.xml";
+    private static final String EDIT_JSP = "parasoft-findings-edit.jsp"; //$NON-NLS-1$
+    private static final String VIEW_JSP = "parasoft-findings-view.jsp"; //$NON-NLS-1$
+    private static final String DEFAULT_ST_REPORTS_LOCATION = "**/rep*.xml"; //$NON-NLS-1$
 
-    // TODO: localize
-    // TODO: replace with actual strings
-    private static final String STR_DISPLAY_NAME = "Parasoft Findings";
-    private static final String STR_DESCRIPTION = "Parasoft SOAtest reporting";
+    private static final String DISPLAY_NAME = "Parasoft Findings"; //$NON-NLS-1$
+    private static final String DESCRIPTION = "Parasoft SOAtest reporting"; //$NON-NLS-1$
 
     public ParasoftFindingsRunType(RunTypeRegistry runTypeRegistry, PluginDescriptor pluginDescriptor) {
         runTypeRegistry.registerRunType((RunType)this);
     }
     @Override
     public String getDescription() {
-        return STR_DESCRIPTION;
+        return DESCRIPTION;
     }
 
     @Override
     public String getDisplayName() {
-        return STR_DISPLAY_NAME;
+        return DISPLAY_NAME;
     }
 
     @Override
@@ -55,13 +53,13 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
         Map<String, String> defaults = new HashMap<String, String>();
-        defaults.put(ST_REPORTS_SOURCE, NL_DEFAULT_ST_REPORTS_LOCATION);
+        defaults.put(ST_REPORTS_SOURCE, DEFAULT_ST_REPORTS_LOCATION);
         return defaults;
     }
 
     @Override
     public String getEditRunnerParamsJspFilePath() {
-        return NL_EDIT_JSP;
+        return EDIT_JSP;
     }
 
     @Override
@@ -71,7 +69,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
 
     @Override
     public String getViewRunnerParamsJspFilePath() {
-        return NL_VIEW_JSP;
+        return VIEW_JSP;
     }
 }
 
