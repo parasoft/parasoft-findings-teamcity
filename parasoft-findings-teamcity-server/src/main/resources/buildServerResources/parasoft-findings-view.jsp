@@ -11,7 +11,7 @@
 <jsp:useBean id="props" class="com.parasoft.findings.teamcity.server.ParasoftFindingsPropertiesBean" />
 
   <div class="parameter">
-    <label for="${props.soatestReportsLocation}">SOAtest Reports Location: <l:star /></label>
+    <label for="${props.soatestReportsLocation}">Report location pattern: <l:star /></label>
     <props:displayValue name="${props.soatestReportsLocation}" emptyValue="not specified"/>
   </div>
 

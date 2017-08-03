@@ -12,7 +12,7 @@
 
 <l:settingsGroup title="Parasoft Configuration">
   <tr>
-    <th><label for="${props.soatestReportsLocation}">SOAtest Reports Location: <l:star /></label></th>
+    <th><label for="${props.soatestReportsLocation}">Report location pattern: <l:star /></label></th>
     <td>
         <props:textProperty id="${props.soatestReportsLocation}" name="${props.soatestReportsLocation}" className="longField"/>
         <span class="error" id="error_${props.soatestReportsLocation}"></span>

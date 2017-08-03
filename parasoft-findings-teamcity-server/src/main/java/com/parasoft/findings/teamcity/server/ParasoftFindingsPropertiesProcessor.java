@@ -24,13 +24,13 @@ import jetbrains.buildServer.serverSide.*;
 
 public class ParasoftFindingsPropertiesProcessor implements PropertiesProcessor, 
     ParasoftFindingsProperties {
-    private static final String STR_CANNOT_BE_EMPTY = "SOAtest Reports Location filed cannot be empty.";
+    private static final String CANNOT_BE_EMPTY = "Please specify report location pattern."; //$NON-NLS-1$
 
     public Collection<InvalidProperty> process(Map<String, String> properties) {
         Collection<InvalidProperty> invalidProperties = new ArrayList<InvalidProperty>();
         String stReportsLocation = properties.get(ST_REPORTS_SOURCE);
         if (stReportsLocation == null || stReportsLocation.trim().isEmpty()) {
-            invalidProperties.add(new InvalidProperty(ST_REPORTS_SOURCE, STR_CANNOT_BE_EMPTY));
+            invalidProperties.add(new InvalidProperty(ST_REPORTS_SOURCE, CANNOT_BE_EMPTY));
         }
         return invalidProperties;
     }

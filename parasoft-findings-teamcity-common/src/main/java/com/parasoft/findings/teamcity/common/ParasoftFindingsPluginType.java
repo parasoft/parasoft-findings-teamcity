@@ -17,6 +17,6 @@
 package com.parasoft.findings.teamcity.common;
 
 public interface ParasoftFindingsPluginType {
-    String NL_PLUGIN_TYPE = "parasoft-findings-teamcity";
+    String PLUGIN_TYPE = "parasoft-findings-teamcity"; //$NON-NLS-1$
 }
 

@@ -29,7 +29,7 @@ public class ParasoftFindingsAgent implements AgentBuildRunner,  AgentBuildRunne
     }
 
     public String getType() {
-        return NL_PLUGIN_TYPE;
+        return PLUGIN_TYPE;
     }
 
     public BuildProcess createBuildProcess(AgentRunningBuild build, BuildRunnerContext context) throws RunBuildException {

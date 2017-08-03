@@ -17,6 +17,6 @@
 package com.parasoft.findings.teamcity.common;
 
 public interface ParasoftFindingsProperties {
-    String ST_REPORTS_SOURCE = "st.reports.location";
+    String ST_REPORTS_SOURCE = "st.reports.location"; //$NON-NLS-1$
 }
 

@@ -49,7 +49,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
 
     @Override
     public String getType() {
-        return NL_PLUGIN_TYPE;
+        return PLUGIN_TYPE;
     }
 
     @Override
