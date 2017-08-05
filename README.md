@@ -46,4 +46,5 @@ The **Build Log** tab contains logging information in case debugging is needed.
 Click the **Statistics** tab of the build configuration page to see charts of the SOAtest reports historical data.
 
 To view historical details of a particular SOAtest test, click the menu icon next to the test you are interested in and choose Test History. A page with detailed test history will open.
+
 ![View Test History](images/testHistory.png)
