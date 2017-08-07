@@ -24,7 +24,8 @@ See TeamCity Installing Additional Plugins documentation page for additional inf
 ## Running the Build
 
 A typical build configuration would consist of the following steps:
-1. Clean the build checkout directory (optional). In this step you will clean the SOAtest XML report files left over from the previous build runs. You have the following options:
+1. Clean the build checkout directory. In this step you will clean the SOAtest XML report files left over from the previous build runs. You have the following options:
+    - Set the "Clean all files in the checkout directory before the build" flag in the Version Control Settings of your build configuration.
     - Configure a Command Line runner to clean the SOAtest XML report files left over from the previous runs. For instance, to remove all XML files from the build Checkout Directory run the following command: rm %system.teamcity.build.checkoutDir%/*.xml
     - Configure the build agent to delete the build Checkout Directory after the completion of the build. To do so, add the following line to the buildAgent.properties flile: teamcity.agent.build.checkoutDir.expireHours=0.See the following TeamCity documentation for more details: [Automatic Checkout Directory Cleaning](https://confluence.jetbrains.com/display/TCD10/Build+Checkout+Directory#BuildCheckoutDirectory-AutomaticCheckoutDirectoryCleaning).
 2. Run SOAtest. This step will generate SOAtest report files in XML format. The SOAtest XML report files must be saved in the TeamCity build project Checkout Directory.
