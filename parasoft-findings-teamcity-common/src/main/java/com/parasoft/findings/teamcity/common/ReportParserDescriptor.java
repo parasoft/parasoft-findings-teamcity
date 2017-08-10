@@ -1,12 +1,12 @@
 /*
  * Copyright 2017 Parasoft Corporation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,29 @@
 
 package com.parasoft.findings.teamcity.common;
 
-public interface ParasoftFindingsProperties {
-    String REPORT_PARSER_TYPE = "report.parser.type"; //$NON-NLS-1$
-    String REPORT_PARSER_LABEL = "report.parser.label"; //$NON-NLS-1$
-    String REPORTS_LOCATION = "reports.location"; //$NON-NLS-1$
+public class ReportParserDescriptor {
+    public enum ReportParserType { SOATEST_9, ANALYZERS_10 };
+
+    private ReportParserType _type;
+    private String _label;
+    private String _xsl;
+
+    public ReportParserDescriptor(ReportParserType type, String label, String xsl) {
+        _type = type;
+        _label = label;
+        _xsl = xsl;
+    }
+
+    public String getId() {
+        return _type.name();
+    }
+
+    public String getLabel() {
+        return _label;
+    }
+
+    public String getXSL() {
+        return _xsl;
+    }
 }
 

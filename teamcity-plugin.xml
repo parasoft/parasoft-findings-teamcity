@@ -4,7 +4,7 @@
     <name>parasoft-findings-teamcity</name>
     <display-name>Parasoft Findings</display-name>
     <version>1.0.0</version>
-    <description>Parasoft SOAtest reporting.</description>
+    <description>Parasoft SOAtest and Analyzers reporting</description>
     <email>support@parasoft.com</email>
     <vendor>
       <name>Parasoft</name>

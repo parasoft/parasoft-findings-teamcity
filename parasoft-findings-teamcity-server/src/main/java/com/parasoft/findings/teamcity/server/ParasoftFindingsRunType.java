@@ -30,7 +30,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     private static final String DEFAULT_ST_REPORTS_LOCATION = "**/rep*.xml"; //$NON-NLS-1$
 
     private static final String DISPLAY_NAME = "Parasoft Findings"; //$NON-NLS-1$
-    private static final String DESCRIPTION = "Parasoft SOAtest reporting"; //$NON-NLS-1$
+    private static final String DESCRIPTION = "Parasoft SOAtest and Analyzers reporting."; //$NON-NLS-1$
 
     public ParasoftFindingsRunType(RunTypeRegistry runTypeRegistry, PluginDescriptor pluginDescriptor) {
         runTypeRegistry.registerRunType((RunType)this);
@@ -53,7 +53,8 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
         Map<String, String> defaults = new HashMap<String, String>();
-        defaults.put(ST_REPORTS_SOURCE, DEFAULT_ST_REPORTS_LOCATION);
+        defaults.put(REPORT_PARSER_TYPE, ReportParserTypes.getDefault().getId());
+        defaults.put(REPORTS_LOCATION, DEFAULT_ST_REPORTS_LOCATION);
         return defaults;
     }
 

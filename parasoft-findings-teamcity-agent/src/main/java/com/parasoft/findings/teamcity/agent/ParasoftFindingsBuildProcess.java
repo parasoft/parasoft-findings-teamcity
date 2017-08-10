@@ -33,7 +33,6 @@ import jetbrains.buildServer.util.pathMatcher.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String PREFIX = "junit-"; //$NON-NLS-1$
-    private static final String SOATEST_XSL = "soatest-xunit.xsl"; //$NON-NLS-1$
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
 
@@ -107,23 +106,28 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
     private void doWork() {
         Map<String, String> params = _context.getRunnerParameters();
-        String stReportsLocation = params.get(ST_REPORTS_SOURCE);
-        LOG.info("Reading SOAtest reports from "+stReportsLocation);
-        File checkoutDir = _build.getCheckoutDirectory();
-        LOG.info("Writing transformed SOAtest reports to "+checkoutDir);
+        String reportParserType = params.get(REPORT_PARSER_TYPE);
+        ReportParserDescriptor rpd = ReportParserTypes.getDescriptor(reportParserType);
 
-        List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {stReportsLocation}, null);
-        if (reports.isEmpty()) {
-            _build.getBuildLogger().message("No SOAtest XML reports found in "+
-                    new File(checkoutDir, stReportsLocation).getAbsolutePath()+".");
-        } else {
-            for (File from : reports) {
-                _build.getBuildLogger().message("Preparing to transform "+from.getAbsolutePath());
-                String targetFileName = PREFIX + from.getName();
-                File to = new File(from.getParentFile(), targetFileName);
-                transform(from, to, SOATEST_XSL, checkoutDir);
-                _build.getBuildLogger().message("Wrote transformed report to "+to.getAbsolutePath());
+        if (rpd != null) {
+            String reportsLocation = params.get(REPORTS_LOCATION);
+            File checkoutDir = _build.getCheckoutDirectory();
+
+            List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {reportsLocation}, null);
+            if (reports.isEmpty()) {
+                _build.getBuildLogger().message("No XML reports found in "+
+                        new File(checkoutDir, reportsLocation).getAbsolutePath()+".");
+            } else {
+                for (File from : reports) {
+                    _build.getBuildLogger().message("Transforming "+from.getAbsolutePath()+" with "+rpd.getLabel());
+                    String targetFileName = PREFIX + from.getName();
+                    File to = new File(from.getParentFile(), targetFileName);
+                    transform(from, to, rpd.getXSL(), checkoutDir);
+                    _build.getBuildLogger().message("Wrote transformed report to "+to.getAbsolutePath());
+                }
             }
+        } else {
+            _build.getBuildLogger().error("No parsers found for type "+reportParserType);
         }
     }
 

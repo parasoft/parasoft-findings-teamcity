@@ -28,9 +28,9 @@ public class ParasoftFindingsPropertiesProcessor implements PropertiesProcessor,
 
     public Collection<InvalidProperty> process(Map<String, String> properties) {
         Collection<InvalidProperty> invalidProperties = new ArrayList<InvalidProperty>();
-        String stReportsLocation = properties.get(ST_REPORTS_SOURCE);
+        String stReportsLocation = properties.get(REPORTS_LOCATION);
         if (stReportsLocation == null || stReportsLocation.trim().isEmpty()) {
-            invalidProperties.add(new InvalidProperty(ST_REPORTS_SOURCE, CANNOT_BE_EMPTY));
+            invalidProperties.add(new InvalidProperty(REPORTS_LOCATION, CANNOT_BE_EMPTY));
         }
         return invalidProperties;
     }
