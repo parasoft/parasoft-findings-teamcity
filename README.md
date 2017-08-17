@@ -37,6 +37,10 @@ A typical build configuration would consist of the following steps:
 2. Run SOAtest, C/C++test, Jtest or dotTEST. This step will generate report files in XML format. The XML report files must be saved in the TeamCity build project Checkout Directory.
 3. Run the Parasoft Findings plugin. You can have multiple Parasoft tool runs that would generate multiple XML report files prior to invoking this build step. If the build steps prior to the Parasoft Findings plugin build step generate multiple XML report files all test results from all these files will be added to the TeamCity build results.
 
+
+Note: Do not enable the *XML report processing* build feature with *Ant JUnit* report types in your build configuration, doing so may have undesirable effects.
+
+
 ## Viewing Results of the Last Build
 
 Open the TeamCity build configuration page and click on the last build results link in the *Overview* or *History* tab. The build results pages contain the appropriate Parasoft tool report details:

@@ -23,6 +23,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
+import javax.xml.stream.*;
+import javax.xml.stream.events.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.*;
 
@@ -32,20 +34,25 @@ import jetbrains.buildServer.messages.*;
 import jetbrains.buildServer.util.pathMatcher.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
+    private static final String JUNIT_TESTSUITE = "testsuite";
+    private static final String JUNIT_TESTSUITES = "testsuites";
+
     private static final String PREFIX = "junit-"; //$NON-NLS-1$
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
 
-    private static final XsltErrorListener xsltErrorListener = new XsltErrorListener();
     private static final TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private BuildRunnerContext _context;
     private AgentRunningBuild _build;
     private Future<BuildFinishedStatus> _futureStatus;
+    private XsltErrorListener _xsltErrorListener;
+    private boolean _transformFailed = false;
 
     public ParasoftFindingsBuildProcess(AgentRunningBuild build, BuildRunnerContext context) {
         _build = build;
         _context = context;
+        _xsltErrorListener = new XsltErrorListener(this);
     }
 
     @Override
@@ -122,7 +129,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     String targetFileName = PREFIX + from.getName();
                     File to = new File(from.getParentFile(), targetFileName);
                     transform(from, to, rpd.getXSL(), checkoutDir);
-                    _build.getBuildLogger().message("Wrote transformed report to "+to.getAbsolutePath());
                 }
             }
         } else {
@@ -131,30 +137,96 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     }
 
     private void transform(File from, File to, String xslFile, File checkoutDir) {
+        _transformFailed = false;
         try {
             StreamSource xml = new StreamSource(new FileInputStream(from));
             StreamSource xsl = new StreamSource(getClass().getResourceAsStream(xslFile));
             StreamResult target = new StreamResult(to);
             Transformer processor = tFactory.newTransformer(xsl);
-            processor.setErrorListener(xsltErrorListener);
+            processor.setErrorListener(_xsltErrorListener);
             processor.transform(xml, target);
 
-            // Send a notification to TC that a JUnit report is ready to be consumed.
-            // This allows running the plug-in build step without having to configure 
-            // the XML Report Processing build feature in a TC project.
-            String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
-            _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                    ("##teamcity[importData type='junit' path='"+relativePath+"']"));
-        } catch (TransformerConfigurationException e) {
-            LOG.log(Level.SEVERE, e.getMessage(), e);
+            if (checkHasContent(to) && !_transformFailed) {
+                // Send a notification to TC that a JUnit report is ready to be consumed.
+                // This allows running the plug-in build step without having to configure 
+                // the XML Report Processing build feature in a TC project.
+                _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
+                String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
+                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                        ("##teamcity[importData type='junit' path='"+relativePath + "']"));
+            } else {
+                reportUnexpectedFormat(from);
+            }
         } catch (TransformerException e) {
+            reportUnexpectedFormat(from);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
+            reportUnexpectedFormat(from);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
+    private void reportUnexpectedFormat(File from) {
+        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+
+                ". See log for details.");
+    }
+
+    private boolean checkHasContent(File to) {
+        return to.exists() && doCheckHasContent(to);
+    }
+
+    private boolean doCheckHasContent(File to) {
+        final String ENCODING = "UTF-8";
+        FileInputStream in = null;
+        XMLEventReader eventReader = null;
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            in = new FileInputStream(to);
+            eventReader = factory.createXMLEventReader(in, ENCODING);
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
+                switch (event.getEventType()) {
+                case XMLStreamConstants.START_ELEMENT:
+                    StartElement startElement = event.asStartElement();
+                    String qName = startElement.getName().getLocalPart();
+                    if (JUNIT_TESTSUITE.equals(qName) || JUNIT_TESTSUITES.equals(qName)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        } catch (XMLStreamException e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Throwable t) {
+                    // ignore
+                }
+            }
+            if (eventReader != null) {
+                try {
+                    eventReader.close();
+                } catch (Throwable t) {
+                    // ignore
+                }
+            }
+        }
+        return false;
+    }
+
+    protected void transformFailed() {
+        _transformFailed = true;
+    }
+
     private static class XsltErrorListener implements ErrorListener {
+        private ParasoftFindingsBuildProcess _process;
+        XsltErrorListener(ParasoftFindingsBuildProcess process) {
+            _process = process;
+        }
+
         @Override
         public void warning(TransformerException e) throws TransformerException {
             LOG.log(Level.WARNING, e.getMessage(), e);
@@ -163,11 +235,13 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         @Override
         public void error(TransformerException e) throws TransformerException {
             LOG.log(Level.SEVERE, e.getMessage(), e);
+            _process.transformFailed();
         }
 
         @Override
         public void fatalError(TransformerException e) throws TransformerException {
             LOG.log(Level.SEVERE, e.getMessage(), e);
+            _process.transformFailed();
         }
     }
 }
