@@ -23,7 +23,7 @@
 %>
 
   <div class="parameter">
-    <label for="${props.reportParserType}">Report parser type: </label>
+    <label for="${props.reportParserType}">Report type: </label>
     <props:displayValue name="${props.reportParserLabel}" emptyValue="not specified"/>
   </div>
   <div class="parameter">

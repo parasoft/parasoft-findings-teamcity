@@ -115,8 +115,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
             List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {reportsLocation}, null);
             if (reports.isEmpty()) {
-                _build.getBuildLogger().message("No XML reports found in "+
-                        new File(checkoutDir, reportsLocation).getAbsolutePath()+".");
+                _build.getBuildLogger().error("No reports found for pattern: "+reportsLocation);
             } else {
                 for (File from : reports) {
                     _build.getBuildLogger().message("Transforming "+from.getAbsolutePath()+" with "+rpd.getLabel());

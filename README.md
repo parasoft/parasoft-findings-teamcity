@@ -22,8 +22,8 @@ See TeamCity Installing Additional Plugins documentation page for additional inf
 1. In the build configuration page, choose *Build Steps* and click *Add build step*. 
 2. Choose *Parasoft Findings* from the *Runner type* drop-down menu.
 3. Specify a name for the step (optional) and choose an execution step policy form the Execute step drop-down menu (see the [TeamCity documentation](https://confluence.jetbrains.com/display/TCD10/Configuring+Build+Steps) for details).
-4. In the **Parasoft Configuration** section choose the report parser type:
-![Select Parser Type](images/selectParserType.png)
+4. In the **Parasoft Configuration** section choose the report type:
+![Select Report Type](images/selectReportType.png)
 5. Review the **Report location pattern** field. The Ant style file selection pattern in this script controls what Parasoft XML report files to include in the TeamCity build report.
 6. Click **Save** when finished.
  

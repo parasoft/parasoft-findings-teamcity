@@ -17,7 +17,7 @@
 
 <l:settingsGroup title="Parasoft Configuration">
   <tr>
-    <th><label for="${props.reportParserType}">Report parser type: </label></th>
+    <th><label for="${props.reportParserType}">Report type: </label></th>
     <td>
       <props:selectProperty id="${props.reportParserType}" name="${props.reportParserType}" enableFilter="true" className="longField">
         <c:forEach items="${parsers}" var="parser">
