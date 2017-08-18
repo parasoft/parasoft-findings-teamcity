@@ -48,6 +48,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private Future<BuildFinishedStatus> _futureStatus;
     private XsltErrorListener _xsltErrorListener;
     private boolean _transformFailed = false;
+    private int _invalidReportCount;
 
     public ParasoftFindingsBuildProcess(AgentRunningBuild build, BuildRunnerContext context) {
         _build = build;
@@ -104,6 +105,12 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         BuildFinishedStatus status = BuildFinishedStatus.FINISHED_SUCCESS;
         try {
             doWork();
+            if (_invalidReportCount > 0) {
+                status = BuildFinishedStatus.FINISHED_FAILED;
+                String description = _invalidReportCount > 1 ? "Failed to parse XML reports" :
+                    "Failed to parse XML report";
+                _build.getBuildLogger().buildFailureDescription(description);
+            }
         } catch (final Throwable t) {
             LOG.log(Level.SEVERE, t.getMessage(), t);
             status = BuildFinishedStatus.FINISHED_FAILED;
@@ -112,6 +119,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     }
 
     private void doWork() {
+        _invalidReportCount = 0;
         Map<String, String> params = _context.getRunnerParameters();
         String reportParserType = params.get(REPORT_PARSER_TYPE);
         ReportParserDescriptor rpd = ReportParserTypes.getDescriptor(reportParserType);
@@ -132,7 +140,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         } else {
-            _build.getBuildLogger().error("No parsers found for type "+reportParserType);
+            throw new RuntimeException("No parsers found for type "+reportParserType);
         }
     }
 
@@ -167,6 +175,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     }
 
     private void reportUnexpectedFormat(File from) {
+        _invalidReportCount++;
         _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+
                 ". See log for details.");
     }
