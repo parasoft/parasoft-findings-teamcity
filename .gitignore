@@ -2,10 +2,9 @@
 .project
 .settings/
 /build/target
-/target/
 /parasoft-findings-teamcity-agent/target
 /parasoft-findings-teamcity-server/target
 /parasoft-findings-teamcity-common/target
-.arcconfig
-
-/bin/
+/target/
+/.arcconfig
+/servers/
