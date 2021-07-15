@@ -9,7 +9,7 @@
   <artifactId>parasoft-findings-teamcity-agent</artifactId>
   <packaging>jar</packaging>
   <dependencies>
-    
+
     <dependency>
       <groupId>com.parasoft</groupId>
       <artifactId>parasoft-findings-teamcity-common</artifactId>
