@@ -16,22 +16,48 @@
 
 package com.parasoft.findings.teamcity.agent;
 
-import com.parasoft.findings.teamcity.common.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.*;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
-import javax.xml.stream.*;
-import javax.xml.stream.events.*;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.*;
+import com.parasoft.findings.teamcity.common.ParasoftFindingsProperties;
+import com.parasoft.findings.teamcity.common.ReportParserDescriptor;
+import com.parasoft.findings.teamcity.common.ReportParserDescriptor.ReportParserType;
+import com.parasoft.findings.teamcity.common.ReportParserTypes;
 
-import jetbrains.buildServer.*;
-import jetbrains.buildServer.agent.*;
-import jetbrains.buildServer.messages.*;
-import jetbrains.buildServer.util.pathMatcher.*;
+import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.AgentRunningBuild;
+import jetbrains.buildServer.agent.BuildFinishedStatus;
+import jetbrains.buildServer.agent.BuildProcess;
+import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.messages.DefaultMessagesInfo;
+import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String JUNIT_TESTSUITE = "testsuite";
@@ -41,6 +67,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
 
+    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
     private static final TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private BuildRunnerContext _context;
@@ -121,27 +148,71 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private void doWork() {
         _invalidReportCount = 0;
         Map<String, String> params = _context.getRunnerParameters();
-        String reportParserType = params.get(REPORT_PARSER_TYPE);
-        ReportParserDescriptor rpd = ReportParserTypes.getDescriptor(reportParserType);
+        String reportsLocation = params.get(REPORTS_LOCATION);
+        File checkoutDir = _build.getCheckoutDirectory();
 
-        if (rpd != null) {
-            String reportsLocation = params.get(REPORTS_LOCATION);
-            File checkoutDir = _build.getCheckoutDirectory();
-
-            List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {reportsLocation}, null);
-            if (reports.isEmpty()) {
-                _build.getBuildLogger().error("No reports found for pattern: "+reportsLocation);
-            } else {
-                for (File from : reports) {
+        List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {reportsLocation}, null);
+        if (reports.isEmpty()) {
+            _build.getBuildLogger().error("No reports found for pattern: "+reportsLocation);
+        } else {
+            for (File from : reports) {
+                ReportParserDescriptor rpd = getReportParserDescriptor(from);
+                if (rpd != null) {
                     _build.getBuildLogger().message("Transforming "+from.getAbsolutePath()+" with "+rpd.getLabel());
                     String targetFileName = PREFIX + from.getName();
                     File to = new File(from.getParentFile(), targetFileName);
                     transform(from, to, rpd.getXSL(), checkoutDir);
+                } else {
+                    _build.getBuildLogger().warning("Skipping unrecognized report file: " + from.getAbsolutePath());
                 }
             }
-        } else {
-            throw new RuntimeException("No parsers found for type "+reportParserType);
         }
+    }
+
+    private ReportParserDescriptor getReportParserDescriptor(File from) {
+        StreamSource xml = new StreamSource(from);
+        XMLEventReader reader = null;
+        try {
+            reader = xmlInputFactory.createXMLEventReader(xml);
+            while (reader.hasNext()) {
+                XMLEvent event = reader.nextEvent();
+                switch (event.getEventType()) {
+                case XMLStreamConstants.START_ELEMENT:
+                    String toolName = null;
+                    StartElement startElement = event.asStartElement();
+                    @SuppressWarnings("unchecked")
+                    Iterator<Attribute> attributes = startElement.getAttributes();
+                    while (attributes.hasNext()) {
+                        Attribute attribute = attributes.next();
+                        String name = attribute.getName().getLocalPart();
+                        if ("toolName".equals(name)) {
+                            toolName = attribute.getValue();
+                            break;
+                        }
+                    }
+                    if (toolName != null) {
+                        return "SOAtest".equals(toolName) ?
+                                ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()) :
+                                ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name());
+                    }
+                    return null;
+                default:
+                    break;
+                }
+            }
+        } catch (XMLStreamException e) {
+            reportUnexpectedFormat(from);
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    LOG.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        }
+        return null;
     }
 
     private void transform(File from, File to, String xslFile, File checkoutDir) {

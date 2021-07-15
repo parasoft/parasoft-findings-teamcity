@@ -1,8 +1,6 @@
 
 <%@page contentType="text/html" pageEncoding="windows-1252"%>
 
-<%@ page import="com.parasoft.findings.teamcity.common.ReportParserTypes" %>
-
 <%@ taglib prefix="props" tagdir="/WEB-INF/tags/props" %>
 <%@ taglib prefix="l" tagdir="/WEB-INF/tags/layout" %>
 <%@ taglib prefix="forms" tagdir="/WEB-INF/tags/forms" %>
@@ -11,22 +9,7 @@
 <jsp:useBean id="propertiesBean" scope="request" type="jetbrains.buildServer.controllers.BasePropertiesBean"/>
 <jsp:useBean id="props" class="com.parasoft.findings.teamcity.server.ParasoftFindingsPropertiesBean" />
 
-<%
-    request.setAttribute("parsers", ReportParserTypes.getParsers());
-%>
-
 <l:settingsGroup title="Parasoft Configuration">
-  <tr>
-    <th><label for="${props.reportParserType}">Report type: </label></th>
-    <td>
-      <props:selectProperty id="${props.reportParserType}" name="${props.reportParserType}" enableFilter="true" className="longField">
-        <c:forEach items="${parsers}" var="parser">
-          <props:option value="${parser.id}">${parser.label}</props:option>
-        </c:forEach>
-      </props:selectProperty>
-      <span class="smallNote">Select report type.</span>
-    </td>
-  </tr>
   <tr>
     <th><label for="${props.reportsLocation}">Report location pattern: <l:star/></label></th>
     <td>

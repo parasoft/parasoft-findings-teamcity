@@ -17,7 +17,7 @@
 package com.parasoft.findings.teamcity.common;
 
 public class ReportParserDescriptor {
-    public enum ReportParserType { SOATEST_9, ANALYZERS_10 };
+    public enum ReportParserType { SOATEST, ANALYZERS };
 
     private ReportParserType _type;
     private String _label;

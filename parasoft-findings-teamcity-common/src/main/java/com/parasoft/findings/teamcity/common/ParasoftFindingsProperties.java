@@ -17,8 +17,6 @@
 package com.parasoft.findings.teamcity.common;
 
 public interface ParasoftFindingsProperties {
-    String REPORT_PARSER_TYPE = "report.parser.type"; //$NON-NLS-1$
-    String REPORT_PARSER_LABEL = "report.parser.label"; //$NON-NLS-1$
     String REPORTS_LOCATION = "reports.location"; //$NON-NLS-1$
 }
 

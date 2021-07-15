@@ -53,7 +53,6 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
         Map<String, String> defaults = new HashMap<String, String>();
-        defaults.put(REPORT_PARSER_TYPE, ReportParserTypes.getDefault().getId());
         defaults.put(REPORTS_LOCATION, DEFAULT_ST_REPORTS_LOCATION);
         return defaults;
     }

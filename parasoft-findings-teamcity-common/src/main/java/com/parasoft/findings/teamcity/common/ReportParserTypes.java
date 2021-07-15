@@ -19,15 +19,15 @@ package com.parasoft.findings.teamcity.common;
 import static com.parasoft.findings.teamcity.common.ReportParserDescriptor.ReportParserType;
 
 public class ReportParserTypes {
-    private static final String SOATEST_9_LABEL = "Parasoft SOAtest 9.x"; //$NON-NLS-1$
-    private static final String ANALYZERS_10_LABEL = "Parasoft Analyzers 10.x"; //$NON-NLS-1$
+    private static final String SOATEST_LABEL = "Parasoft SOAtest"; //$NON-NLS-1$
+    private static final String ANALYZERS_LABEL = "Parasoft Analyzers"; //$NON-NLS-1$
 
     private static final String SOATEST_XSL = "soatest-xunit.xsl"; //$NON-NLS-1$
     private static final String ANALYZERS_XSL = "xunit.xsl"; //$NON-NLS-1$
 
     private static final ReportParserDescriptor[] _parsers = new ReportParserDescriptor[] { 
-        new ReportParserDescriptor(ReportParserType.SOATEST_9, SOATEST_9_LABEL, SOATEST_XSL),
-        new ReportParserDescriptor(ReportParserType.ANALYZERS_10, ANALYZERS_10_LABEL, ANALYZERS_XSL)
+        new ReportParserDescriptor(ReportParserType.SOATEST, SOATEST_LABEL, SOATEST_XSL),
+        new ReportParserDescriptor(ReportParserType.ANALYZERS, ANALYZERS_LABEL, ANALYZERS_XSL)
     };
 
     public static ReportParserDescriptor[] getParsers() {

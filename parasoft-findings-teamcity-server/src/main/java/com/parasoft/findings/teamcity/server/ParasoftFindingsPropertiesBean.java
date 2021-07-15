@@ -19,12 +19,6 @@ package com.parasoft.findings.teamcity.server;
 import com.parasoft.findings.teamcity.common.*;
 
 public class ParasoftFindingsPropertiesBean implements ParasoftFindingsProperties {
-    public String getReportParserType() {
-        return REPORT_PARSER_TYPE;
-    }
-    public String getReportParserLabel() {
-        return REPORT_PARSER_LABEL;
-    }
     public String getReportsLocation() {
         return REPORTS_LOCATION;
     }
