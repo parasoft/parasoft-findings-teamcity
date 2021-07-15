@@ -24,16 +24,27 @@
   <repositories>
     <repository>
       <id>JetBrains</id>
-      <url>http://repository.jetbrains.com/all</url>
+      <url>https://download.jetbrains.com/teamcity-repository</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>JetBrains</id>
-      <url>http://repository.jetbrains.com/all</url>
+      <url>https://download.jetbrains.com/teamcity-repository</url>
     </pluginRepository>
   </pluginRepositories>
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -47,24 +58,13 @@
         <plugin>
           <groupId>org.jetbrains.teamcity</groupId>
           <artifactId>teamcity-sdk-maven-plugin</artifactId>
-          <version>0.2</version>
+          <version>0.4.2</version>
           <configuration>
             <!-- <teamcityDir>/path/to/tc/distro</teamcityDir> -->
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
-        <configuration>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
   <modules>
     <module>parasoft-findings-teamcity-server</module>
