@@ -17,16 +17,18 @@
 package com.parasoft.findings.teamcity.common;
 
 public class ReportParserDescriptor {
-    public enum ReportParserType { SOATEST, ANALYZERS };
+    public enum ReportParserType { SOATEST, ANALYZERS, SA_PMD, SA_PMD_CPD };
 
     private ReportParserType _type;
     private String _label;
     private String _xsl;
+    private String _outputFileNamePrefix;
 
-    public ReportParserDescriptor(ReportParserType type, String label, String xsl) {
+    public ReportParserDescriptor(ReportParserType type, String label, String xsl, String outputFileNamePrefix) {
         _type = type;
         _label = label;
         _xsl = xsl;
+        _outputFileNamePrefix = outputFileNamePrefix;
     }
 
     public String getId() {
@@ -39,6 +41,10 @@ public class ReportParserDescriptor {
 
     public String getXSL() {
         return _xsl;
+    }
+
+    public String getOutputFileNamePrefix() {
+        return _outputFileNamePrefix;
     }
 }
 
