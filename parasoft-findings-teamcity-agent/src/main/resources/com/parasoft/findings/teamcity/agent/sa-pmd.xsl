@@ -5,12 +5,17 @@
     <xsl:variable name="toolName" select="/ResultsSession/@toolName"/>
     <xsl:variable name="rules" select="/ResultsSession/CodingStandards/Rules/RulesList/Rule"/>
     <xsl:variable name="categories" select="/ResultsSession/CodingStandards/Rules/CategoriesList//Category"/>
+    <xsl:variable name="isStaticAnalysisResult" select="count(/ResultsSession/CodingStandards) = 1" />
 
-    <xsl:template match="/ResultsSession">
-        <xsl:element name="pmd">
-            <xsl:call-template name="transformStdViols"/>
-            <xsl:call-template name="transformSuppressedViols"/>
-        </xsl:element>
+    <xsl:template match="/">
+        <xsl:choose>
+            <xsl:when test="$isStaticAnalysisResult">
+                <xsl:element name="pmd">
+                    <xsl:call-template name="transformStdViols"/>
+                    <xsl:call-template name="transformSuppressedViols"/>
+                </xsl:element>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="transformStdViols">

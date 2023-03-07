@@ -2,10 +2,16 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
 
-    <xsl:template match="/ResultsSession" >
-        <xsl:element name="pmd-cpd">
-            <xsl:call-template name="transformDupViol"/>
-        </xsl:element>
+    <xsl:variable name="isStaticAnalysisResult" select="count(/ResultsSession/CodingStandards) = 1" />
+
+    <xsl:template match="/" >
+        <xsl:choose>
+            <xsl:when test="$isStaticAnalysisResult">
+                <xsl:element name="pmd-cpd">
+                    <xsl:call-template name="transformDupViol"/>
+                </xsl:element>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="transformDupViol">
