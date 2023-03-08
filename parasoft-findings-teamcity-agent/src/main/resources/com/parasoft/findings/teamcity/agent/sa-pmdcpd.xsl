@@ -19,7 +19,7 @@
             <xsl:if test="not(@supp = 'true')">
                 <xsl:element name="duplication">
                     <xsl:if test="@locEndLn and @locStartln">
-                        <xsl:attribute name="lines"><xsl:value-of select="@locEndLn - @locStartln + 1"/></xsl:attribute>
+                        <xsl:attribute name="lines"><xsl:value-of select="@locEndLn - @locStartln"/></xsl:attribute>
                     </xsl:if>
                     <xsl:apply-templates select="ElDescList/ElDesc"/>
                 </xsl:element>
@@ -42,7 +42,14 @@
                 <xsl:attribute name="line"><xsl:value-of select="@srcRngStartln"/></xsl:attribute>
             </xsl:if>
             <xsl:if test="@srcRngFile">
-                <xsl:attribute name="path"><xsl:value-of select="@srcRngFile"/></xsl:attribute>
+                <xsl:attribute name="path">
+                    <xsl:if test="/ResultsSession/@toolId = 'jtest'">
+                        <xsl:value-of select="substring-after(@srcRngFile, /ResultsSession/@prjModule)"/>
+                    </xsl:if>
+                    <xsl:if test="/ResultsSession/@toolId != 'jtest'">
+                        <xsl:value-of select="@srcRngFile"/>
+                    </xsl:if>
+                </xsl:attribute>
             </xsl:if>
         </xsl:element>
     </xsl:template>
