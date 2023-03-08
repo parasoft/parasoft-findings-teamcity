@@ -33,7 +33,7 @@ public class ParasoftFindingsRunType extends RunType implements ParasoftFindings
     private static final String DESCRIPTION = "Parasoft products reporting."; //$NON-NLS-1$
 
     public ParasoftFindingsRunType(RunTypeRegistry runTypeRegistry, PluginDescriptor pluginDescriptor) {
-        runTypeRegistry.registerRunType((RunType)this);
+        runTypeRegistry.registerRunType(this);
     }
     @Override
     public String getDescription() {

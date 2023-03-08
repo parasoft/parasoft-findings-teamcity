@@ -163,14 +163,11 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         } else {
             for (File from : reports) {
                 List<ReportParserDescriptor> rpds = getReportParserDescriptors(from);
-                if(rpds == null) {
-                    continue;
-                }
-                if(rpds.isEmpty()) {
+                if (rpds.isEmpty()) {
                     _build.getBuildLogger().warning("Skipping unrecognized report file: " + from.getAbsolutePath());
                     continue;
                 }
-                for(ReportParserDescriptor rpd : rpds) {
+                for (ReportParserDescriptor rpd : rpds) {
                     _build.getBuildLogger().message("Transforming "+from.getAbsolutePath()+" with "+rpd.getLabel());
                     String targetFileName = rpd.getOutputFileNamePrefix() + from.getName();
                     File to = new File(from.getParentFile(), targetFileName);
@@ -184,23 +181,22 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
             Document document = getDocument(from);
-            if(checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/*[not(name()='DupViol')]")) {
+            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/*[not(name()='DupViol')]")) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
             }
 
-            if(checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/DupViol")) {
+            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/DupViol")) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD_CPD.name()));
             }
 
-            if(checkIfNodeExists(document, "/ResultsSession/Exec")) {
-                if(checkIfNodeExists(document, "/ResultsSession[contains(@toolName,'SOAtest')]")) {
+            if (checkIfNodeExists(document, "/ResultsSession/Exec")) {
+                if (checkIfNodeExists(document, "/ResultsSession[contains(@toolName,'SOAtest')]")) {
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
                 } else {
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name()));
                 }
             }
         } catch (Exception e) {
-            descriptors = null;
             reportUnexpectedFormat(from);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -231,28 +227,15 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             processor.setErrorListener(_xsltErrorListener);
             processor.transform(xml, target);
 
-            if (checkHasContent(to) && !_transformFailed) {
+            String type = getContentType(to);
+            if (type != null && !_transformFailed) {
                 // Send a notification to TC that a JUnit report is ready to be consumed.
                 // This allows running the plug-in build step without having to configure
                 // the XML Report Processing build feature in a TC project.
                 _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
                 String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
-                String type = "";
-                if(to.getName().startsWith(PMD_PREFIX)) {
-                    type = "pmd";
-                }
-                if(to.getName().startsWith(PMD_CPD_PREFIX)) {
-                    type = "pmdCpd";
-                }
-                if(to.getName().startsWith(JUNIT_PREFIX)) {
-                    type = "junit";
-                }
-                if(type.isEmpty()) {
-                    _build.getBuildLogger().error("Unable to determine file type, can not report file to TeamCity: " + to.getAbsolutePath());
-                } else {
-                    _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                            ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
-                }
+                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                        ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
             } else {
                 reportUnexpectedFormat(from);
             }
@@ -271,11 +254,10 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 ". See log for details.");
     }
 
-    private boolean checkHasContent(File to) {
-        return to.exists() && doCheckHasContent(to);
-    }
-
-    private boolean doCheckHasContent(File to) {
+    private String getContentType(File to) {
+        if (!to.exists()) {
+            return null;
+        }
         final String ENCODING = "UTF-8";
         FileInputStream in = null;
         XMLEventReader eventReader = null;
@@ -289,13 +271,13 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 case XMLStreamConstants.START_ELEMENT:
                     StartElement startElement = event.asStartElement();
                     String qName = startElement.getName().getLocalPart();
-                    if (JUNIT_TESTSUITE_TAG_NAME.equals(qName)
-                            || JUNIT_TESTSUITES_TAG_NAME.equals(qName)
-                            || PMD_TAG_NAME.equals(qName)
-                            || PMD_CPD_TAG_NAME.equals(qName)) {
-                        return true;
+                    if (JUNIT_TESTSUITE_TAG_NAME.equals(qName) || JUNIT_TESTSUITES_TAG_NAME.equals(qName)) {
+                        return "junit";
+                    } else if (PMD_TAG_NAME.equals(qName)) {
+                        return "pmd";
+                    } else if (PMD_CPD_TAG_NAME.equals(qName))
+                        return "pmdCpd";
                     }
-                }
             }
         } catch (FileNotFoundException e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
@@ -317,7 +299,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         }
-        return false;
+        return null;
     }
 
     protected void transformFailed() {
