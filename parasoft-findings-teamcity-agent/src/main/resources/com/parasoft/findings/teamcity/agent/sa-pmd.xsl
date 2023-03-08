@@ -12,87 +12,110 @@
         <xsl:choose>
             <xsl:when test="$isStaticAnalysisResult">
                 <xsl:element name="pmd">
-                    <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/StdViol">
-                        <xsl:call-template name="setFile"/>
-                    </xsl:for-each>
-
-                    <xsl:call-template name="transformSuppressedViols"/>
-
-                    <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/FlowViol">
-                        <xsl:call-template name="setFile"/>
-                    </xsl:for-each>
-
-                    <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/MetViol">
-                        <xsl:call-template name="setFile"/>
-                    </xsl:for-each>
-
-
+                    <xsl:call-template name="transformStdViol"/>
+                    <xsl:call-template name="transformSuppressedStdViols"/>
+                    <xsl:call-template name="transformFlowViol"/>
+                    <xsl:call-template name="transformSuppressedFlowViols"/>
+                    <xsl:call-template name="transformMetViol"/>
+                    <xsl:call-template name="transformSuppressedMetViols"/>
                 </xsl:element>
             </xsl:when>
         </xsl:choose>
     </xsl:template>
 
-    <xsl:template name="setFile">
-        <xsl:if test="@supp != true()">
-            <xsl:element name="file">
-                <xsl:if test="@locFile">
-                    <xsl:attribute name="name"><xsl:value-of select="@locFile"/></xsl:attribute>
-                </xsl:if>
-                <xsl:call-template name="setViolations"/>
-            </xsl:element>
-        </xsl:if>
+    <xsl:template name="transformStdViol">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/StdViol">
+            <xsl:if test="@supp != true()">
+                <xsl:call-template name="setFile"/>
+            </xsl:if>
+        </xsl:for-each>
     </xsl:template>
 
-    <xsl:template name="setViolations">
-        <xsl:variable name="ElDesc" select="ElDescList/ElDesc"/>
-        <xsl:element name="violation">
-            <xsl:if test="@locStartln"><xsl:attribute name="beginline"><xsl:value-of select="@locStartln" /></xsl:attribute></xsl:if>
-            <xsl:if test="@locEndLn"><xsl:attribute name="endline"><xsl:value-of select="@locEndLn"/></xsl:attribute></xsl:if>
-            <xsl:if test="@locStartPos"><xsl:attribute name="begincolumn"><xsl:value-of select="@locStartPos"/></xsl:attribute></xsl:if>
-            <xsl:if test="@locEndPos"><xsl:attribute name="endcolumn"><xsl:value-of select="@locEndPos"/></xsl:attribute></xsl:if>
-            <xsl:if test="@sev"><xsl:attribute name="priority"><xsl:value-of select="@sev"/></xsl:attribute></xsl:if>
-            <xsl:attribute name="rule">
-                <xsl:value-of select="@rule"/>
+    <xsl:template name="transformFlowViol">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/FlowViol">
+            <xsl:if test="@supp != true()">
+                <xsl:call-template name="setFile"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="transformMetViol">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/MetViol">
+            <xsl:if test="@supp != true()">
+                <xsl:call-template name="setFile"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="setFile">
+        <xsl:element name="file">
+            <xsl:if test="@locFile">
+                <xsl:attribute name="name"><xsl:value-of select="@locFile"/></xsl:attribute>
+            </xsl:if>
+            <xsl:element name="violation">
+                <xsl:if test="@locStartln"><xsl:attribute name="beginline"><xsl:value-of select="@locStartln" /></xsl:attribute></xsl:if>
+                <xsl:if test="@locEndLn"><xsl:attribute name="endline"><xsl:value-of select="@locEndLn"/></xsl:attribute></xsl:if>
+                <xsl:if test="@locStartPos"><xsl:attribute name="begincolumn"><xsl:value-of select="@locStartPos"/></xsl:attribute></xsl:if>
+                <xsl:if test="@locEndPos"><xsl:attribute name="endcolumn"><xsl:value-of select="@locEndPos"/></xsl:attribute></xsl:if>
+                <xsl:if test="@sev"><xsl:attribute name="priority"><xsl:value-of select="@sev"/></xsl:attribute></xsl:if>
+                <xsl:attribute name="rule">
+                    <xsl:value-of select="@rule"/>
+                </xsl:attribute>
+                <xsl:attribute name="ruleset">
+                    <xsl:call-template name="getRuleCategoryDesc">
+                        <xsl:with-param name="ruleId" select="@rule"/>
+                    </xsl:call-template>
+                </xsl:attribute>
+                <xsl:if test="@pkg"><xsl:attribute name="package"><xsl:value-of select="@pkg"/></xsl:attribute></xsl:if>
+                <xsl:value-of select="@msg"/>
+            </xsl:element>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template name="transformSuppressedStdViols">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/StdViol">
+            <xsl:choose>
+                <xsl:when test="@supp = true()">
+                    <xsl:call-template name="setSuppressedviolation"/>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="transformSuppressedFlowViols">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/FlowViol">
+            <xsl:choose>
+                <xsl:when test="@supp = true()">
+                    <xsl:call-template name="setSuppressedviolation"/>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="transformSuppressedMetViols">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/MetViol">
+            <xsl:choose>
+                <xsl:when test="@supp = true()">
+                    <xsl:call-template name="setSuppressedviolation"/>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="setSuppressedviolation">
+        <xsl:element name="suppressedviolation">
+            <xsl:attribute name="filename">
+                <xsl:value-of select="@locFile"/>
             </xsl:attribute>
-            <xsl:attribute name="ruleset">
+            <xsl:attribute name="suppressiontype">
                 <xsl:call-template name="getRuleCategoryDesc">
                     <xsl:with-param name="ruleId" select="@rule"/>
                 </xsl:call-template>
             </xsl:attribute>
-            <xsl:if test="@pkg"><xsl:attribute name="package"><xsl:value-of select="@pkg"/></xsl:attribute></xsl:if>
-            <xsl:choose>
-                <xsl:when test="$ElDesc">
-                    <xsl:call-template name="setFlowMessages">
-                        <xsl:with-param name="ElDesc" select="$ElDesc"/>
-                    </xsl:call-template>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="@msg"/>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:attribute name="msg">
+                <xsl:value-of select="@msg"/>
+            </xsl:attribute>
         </xsl:element>
-    </xsl:template>
-
-    <xsl:template name="transformSuppressedViols">
-        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/StdViol">
-            <xsl:choose>
-                <xsl:when test="@supp = true()">
-                    <xsl:element name="suppressedviolation">
-                        <xsl:attribute name="filename">
-                            <xsl:value-of select="@locFile"/>
-                        </xsl:attribute>
-                        <xsl:attribute name="suppressiontype">
-                            <xsl:call-template name="getRuleCategoryDesc">
-                                <xsl:with-param name="ruleId" select="@rule"/>
-                            </xsl:call-template>
-                        </xsl:attribute>
-                        <xsl:attribute name="msg">
-                            <xsl:value-of select="@msg"/>
-                        </xsl:attribute>
-                    </xsl:element>
-                </xsl:when>
-            </xsl:choose>
-        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="getRuleCategoryDesc">
@@ -102,37 +125,6 @@
         <xsl:choose>
             <xsl:when test="$matchingCategory/@desc"><xsl:value-of select="$matchingCategory/@desc"/></xsl:when>
             <xsl:otherwise>Others</xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
-    <xsl:template name="setFlowMessages">
-        <xsl:param name="ElDesc"/>
-        <xsl:for-each select="$ElDesc">
-            <xsl:value-of select="$newLine"/>
-            <xsl:call-template name="getSrcRngFile">
-                <xsl:with-param name="srcRngFile" select="@srcRngFile"/>
-            </xsl:call-template>
-            <xsl:variable name="message" select="concat(':', @ln, '***', @desc)"/>
-            <xsl:value-of select="$message"/>
-            <xsl:variable name="anns" select="Anns/Ann"/>
-            <xsl:for-each select="$anns">
-                <xsl:value-of select="concat('***', @msg)"/>
-            </xsl:for-each>
-        </xsl:for-each>
-    </xsl:template>
-
-    <xsl:template name="getSrcRngFile">
-        <xsl:param name="srcRngFile"/>
-        <xsl:variable name="newsrcRngFile" select="substring-after($srcRngFile,'/')"/>
-        <xsl:choose>
-            <xsl:when test="contains($newsrcRngFile,'/')">
-                <xsl:call-template name="getSrcRngFile">
-                    <xsl:with-param name="srcRngFile" select="$newsrcRngFile" />
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$newsrcRngFile"/>
-            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 </xsl:stylesheet>
