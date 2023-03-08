@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.*;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -59,6 +60,7 @@ import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import static com.parasoft.findings.teamcity.common.ReportParserTypes.*;
 
@@ -161,6 +163,9 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         } else {
             for (File from : reports) {
                 List<ReportParserDescriptor> rpds = getReportParserDescriptors(from);
+                if(rpds == null) {
+                    continue;
+                }
                 if(rpds.isEmpty()) {
                     _build.getBuildLogger().warning("Skipping unrecognized report file: " + from.getAbsolutePath());
                     continue;
@@ -179,7 +184,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
             Document document = getDocument(from);
-            if(checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/StdViol")) {
+            if(checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/*[not(name()='DupViol')]")) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
             }
 
@@ -187,24 +192,22 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD_CPD.name()));
             }
 
-            if(checkIfNodeExists(document, "/ResultsSession/ExecutedTestsDetails[contains(@type,'FT')]")) {
-                descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
-            }
-
-            if(checkIfNodeExists(document, "/ResultsSession/ExecutedTestsDetails[contains(@type,'UT')]")) {
-                ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name());
+            if(checkIfNodeExists(document, "/ResultsSession/Exec")) {
+                if(checkIfNodeExists(document, "/ResultsSession[contains(@toolName,'SOAtest')]")) {
+                    descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
+                } else {
+                    descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name()));
+                }
             }
         } catch (Exception e) {
+            descriptors = null;
             reportUnexpectedFormat(from);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
         return descriptors;
     }
 
-    private Document getDocument(File file) throws Exception {
-        if(!file.exists()) {
-            return null;
-        }
+    private Document getDocument(File file) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -212,10 +215,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     }
 
     private boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
-        return document != null && doCheckIfNodeExists(document, xpathExpression);
-    }
-
-    private boolean doCheckIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
         XPath xpath = xpathFactory.newXPath();
         XPathExpression expr = xpath.compile(xpathExpression);
         NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
@@ -248,11 +247,11 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 if(to.getName().startsWith(JUNIT_PREFIX)) {
                     type = "junit";
                 }
-                if(!("".equals(type))) {
+                if(type.isEmpty()) {
+                    _build.getBuildLogger().error("Unable to determine file type, can not report file to TeamCity: " + to.getAbsolutePath());
+                } else {
                     _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
                             ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
-                } else {
-                    _build.getBuildLogger().error("Unable to determine file type, can not report file to TeamCity: " + to.getAbsolutePath());
                 }
             } else {
                 reportUnexpectedFormat(from);

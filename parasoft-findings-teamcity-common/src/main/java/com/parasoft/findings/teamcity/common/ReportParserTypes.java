@@ -21,8 +21,8 @@ import static com.parasoft.findings.teamcity.common.ReportParserDescriptor.Repor
 public class ReportParserTypes {
     private static final String SOATEST_LABEL = "Parasoft SOAtest"; //$NON-NLS-1$
     private static final String ANALYZERS_LABEL = "Parasoft Analyzers"; //$NON-NLS-1$
-    private static final String SA_PMD_LABEL = "PMD"; //$NON-NLS-1$
-    private static final String SA_PMDCPD_LABEL = "PMD Copy/Paste Detector (CPD)"; //$NON-NLS-1$
+    private static final String SA_PMD_LABEL = "Parasoft Code Inspection"; //$NON-NLS-1$
+    private static final String SA_PMDCPD_LABEL = "Parasoft Duplicates"; //$NON-NLS-1$
 
     private static final String SOATEST_XSL = "soatest-xunit.xsl"; //$NON-NLS-1$
     private static final String ANALYZERS_XSL = "xunit.xsl"; //$NON-NLS-1$
