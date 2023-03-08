@@ -18,9 +18,9 @@
         <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/DupViol">
             <xsl:if test="not(@supp = 'true')">
                 <xsl:element name="duplication">
-                    <xsl:attribute name="lines">
-                        <xsl:value-of select="@locEndLn - @locStartln + 1"/>
-                    </xsl:attribute>
+                    <xsl:if test="@locEndLn and @locStartln">
+                        <xsl:attribute name="lines"><xsl:value-of select="@locEndLn - @locStartln + 1"/></xsl:attribute>
+                    </xsl:if>
                     <xsl:apply-templates select="ElDescList/ElDesc"/>
                 </xsl:element>
             </xsl:if>
@@ -29,21 +29,21 @@
 
     <xsl:template match="ElDesc">
         <xsl:element name="file">
-            <xsl:attribute name="column">
-                <xsl:value-of select="@srcRngStartPos"/>
-            </xsl:attribute>
-            <xsl:attribute name="endcolumn">
-                <xsl:value-of select="@srcRngEndPos"/>
-            </xsl:attribute>
-            <xsl:attribute name="endline">
-                <xsl:value-of select="@srcRngEndLn"/>
-            </xsl:attribute>
-            <xsl:attribute name="line">
-                <xsl:value-of select="@srcRngStartln"/>
-            </xsl:attribute>
-            <xsl:attribute name="path">
-                <xsl:value-of select="@srcRngFile"/>
-            </xsl:attribute>
+            <xsl:if test="@srcRngStartPos">
+                <xsl:attribute name="column"><xsl:value-of select="@srcRngStartPos"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@srcRngEndPos">
+                <xsl:attribute name="endcolumn"><xsl:value-of select="@srcRngEndPos"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@srcRngEndLn">
+                <xsl:attribute name="endline"><xsl:value-of select="@srcRngEndLn"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@srcRngStartln">
+                <xsl:attribute name="line"><xsl:value-of select="@srcRngStartln"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@srcRngFile">
+                <xsl:attribute name="path"><xsl:value-of select="@srcRngFile"/></xsl:attribute>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 </xsl:stylesheet>
