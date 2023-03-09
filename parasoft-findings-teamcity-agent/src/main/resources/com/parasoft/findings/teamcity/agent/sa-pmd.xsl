@@ -18,29 +18,29 @@
     </xsl:template>
 
     <xsl:template match="StdViol[@supp != true()]">
-        <xsl:call-template name="setFileTag"/>
+        <xsl:call-template name="file"/>
     </xsl:template>
 
     <xsl:template match="FlowViol[@supp != true()]">
-        <xsl:call-template name="setFileTag"/>
+        <xsl:call-template name="file"/>
     </xsl:template>
 
     <xsl:template match="MetViol[@supp != true()]">
-        <xsl:call-template name="setFileTag"/>
+        <xsl:call-template name="file"/>
     </xsl:template>
 
-    <xsl:template name="setFileTag">
+    <xsl:template name="file">
         <xsl:element name="file">
             <xsl:if test="@locFile">
                 <xsl:attribute name="name">
                     <xsl:value-of select="@locFile"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:call-template name="setViolationTag"/>
+            <xsl:call-template name="violation"/>
         </xsl:element>
     </xsl:template>
 
-    <xsl:template name="setViolationTag">
+    <xsl:template name="violation">
         <xsl:element name="violation">
             <xsl:if test="@locStartln">
                 <xsl:attribute name="beginline">
@@ -83,18 +83,18 @@
     </xsl:template>
 
     <xsl:template match="StdViol[@supp = true()]">
-        <xsl:call-template name="setSuppressedviolationTag"/>
+        <xsl:call-template name="suppressedviolation"/>
     </xsl:template>
 
     <xsl:template match="FlowViol[@supp = true()]">
-        <xsl:call-template name="setSuppressedviolationTag"/>
+        <xsl:call-template name="suppressedviolation"/>
     </xsl:template>
 
     <xsl:template match="MetViol[@supp = true()]">
-        <xsl:call-template name="setSuppressedviolationTag"/>
+        <xsl:call-template name="suppressedviolation"/>
     </xsl:template>
 
-    <xsl:template name="setSuppressedviolationTag">
+    <xsl:template name="suppressedviolation">
         <xsl:element name="suppressedviolation">
             <xsl:attribute name="filename">
                 <xsl:value-of select="@locFile"/>
