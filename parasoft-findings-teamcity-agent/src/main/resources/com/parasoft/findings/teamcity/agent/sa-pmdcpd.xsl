@@ -47,10 +47,10 @@
             </xsl:if>
             <xsl:if test="@srcRngFile">
                 <xsl:attribute name="path">
-                    <xsl:if test="/ResultsSession/@toolId = 'jtest'">
+                    <xsl:if test="../../@lang = 'java'">
                         <xsl:value-of select="substring-after(@srcRngFile, /ResultsSession/@prjModule)"/>
                     </xsl:if>
-                    <xsl:if test="/ResultsSession/@toolId != 'jtest'">
+                    <xsl:if test="../../@lang != 'java'">
                         <xsl:value-of select="@srcRngFile"/>
                     </xsl:if>
                 </xsl:attribute>
