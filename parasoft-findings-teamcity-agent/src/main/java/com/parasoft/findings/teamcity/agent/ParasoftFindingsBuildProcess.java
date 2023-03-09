@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -32,11 +32,10 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.*;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.ErrorListener;
@@ -45,6 +44,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.*;
 
 import com.parasoft.findings.teamcity.common.ParasoftFindingsProperties;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor;
@@ -58,16 +58,22 @@ import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import static com.parasoft.findings.teamcity.common.ReportParserTypes.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
-    private static final String JUNIT_TESTSUITE = "testsuite";
-    private static final String JUNIT_TESTSUITES = "testsuites";
+    private static final String JUNIT_TESTSUITE_TAG_NAME = "testsuite";
+    private static final String JUNIT_TESTSUITES_TAG_NAME = "testsuites";
+    private static final String PMD_TAG_NAME = "pmd";
+    private static final String PMD_CPD_TAG_NAME = "pmd-cpd";
 
-    private static final String PREFIX = "junit-"; //$NON-NLS-1$
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
 
-    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+    private static final XPathFactory xpathFactory = XPathFactory.newInstance();
     private static final TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private BuildRunnerContext _context;
@@ -156,63 +162,59 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             _build.getBuildLogger().error("No reports found for pattern: "+reportsLocation);
         } else {
             for (File from : reports) {
-                ReportParserDescriptor rpd = getReportParserDescriptor(from);
-                if (rpd != null) {
+                List<ReportParserDescriptor> rpds = getReportParserDescriptors(from);
+                if (rpds.isEmpty()) {
+                    _build.getBuildLogger().warning("Skipping unrecognized report file: " + from.getAbsolutePath());
+                    continue;
+                }
+                for (ReportParserDescriptor rpd : rpds) {
                     _build.getBuildLogger().message("Transforming "+from.getAbsolutePath()+" with "+rpd.getLabel());
-                    String targetFileName = PREFIX + from.getName();
+                    String targetFileName = rpd.getOutputFileNamePrefix() + from.getName();
                     File to = new File(from.getParentFile(), targetFileName);
                     transform(from, to, rpd.getXSL(), checkoutDir);
-                } else {
-                    _build.getBuildLogger().warning("Skipping unrecognized report file: " + from.getAbsolutePath());
                 }
             }
         }
     }
 
-    private ReportParserDescriptor getReportParserDescriptor(File from) {
-        StreamSource xml = new StreamSource(from);
-        XMLEventReader reader = null;
+    private List<ReportParserDescriptor> getReportParserDescriptors(File from) {
+        List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
-            reader = xmlInputFactory.createXMLEventReader(xml);
-            while (reader.hasNext()) {
-                XMLEvent event = reader.nextEvent();
-                switch (event.getEventType()) {
-                case XMLStreamConstants.START_ELEMENT:
-                    String toolName = null;
-                    StartElement startElement = event.asStartElement();
-                    @SuppressWarnings("unchecked")
-                    Iterator<Attribute> attributes = startElement.getAttributes();
-                    while (attributes.hasNext()) {
-                        Attribute attribute = attributes.next();
-                        String name = attribute.getName().getLocalPart();
-                        if ("toolName".equals(name)) {
-                            toolName = attribute.getValue();
-                            break;
-                        }
-                    }
-                    if (toolName != null) {
-                        return "SOAtest".equals(toolName) ?
-                                ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()) :
-                                ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name());
-                    }
-                    return null;
-                default:
-                    break;
+            Document document = getDocument(from);
+            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/*[not(name()='DupViol')]")) {
+                descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
+            }
+
+            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/DupViol")) {
+                descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD_CPD.name()));
+            }
+
+            if (checkIfNodeExists(document, "/ResultsSession/Exec")) {
+                if (checkIfNodeExists(document, "/ResultsSession[contains(@toolName,'SOAtest')]")) {
+                    descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
+                } else {
+                    descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name()));
                 }
             }
-        } catch (XMLStreamException e) {
+        } catch (Exception e) {
             reportUnexpectedFormat(from);
             LOG.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (XMLStreamException e) {
-                    LOG.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
         }
-        return null;
+        return descriptors;
+    }
+
+    private Document getDocument(File file) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(file);
+    }
+
+    private boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
+        XPath xpath = xpathFactory.newXPath();
+        XPathExpression expr = xpath.compile(xpathExpression);
+        NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+        return nodes != null && nodes.getLength() > 0;
     }
 
     private void transform(File from, File to, String xslFile, File checkoutDir) {
@@ -225,14 +227,15 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             processor.setErrorListener(_xsltErrorListener);
             processor.transform(xml, target);
 
-            if (checkHasContent(to) && !_transformFailed) {
+            String type = getContentType(to);
+            if (type != null && !_transformFailed) {
                 // Send a notification to TC that a JUnit report is ready to be consumed.
-                // This allows running the plug-in build step without having to configure 
+                // This allows running the plug-in build step without having to configure
                 // the XML Report Processing build feature in a TC project.
                 _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
                 String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
                 _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                        ("##teamcity[importData type='junit' path='"+relativePath + "']"));
+                        ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
             } else {
                 reportUnexpectedFormat(from);
             }
@@ -251,11 +254,10 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 ". See log for details.");
     }
 
-    private boolean checkHasContent(File to) {
-        return to.exists() && doCheckHasContent(to);
-    }
-
-    private boolean doCheckHasContent(File to) {
+    private String getContentType(File to) {
+        if (!to.exists()) {
+            return null;
+        }
         final String ENCODING = "UTF-8";
         FileInputStream in = null;
         XMLEventReader eventReader = null;
@@ -269,10 +271,13 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 case XMLStreamConstants.START_ELEMENT:
                     StartElement startElement = event.asStartElement();
                     String qName = startElement.getName().getLocalPart();
-                    if (JUNIT_TESTSUITE.equals(qName) || JUNIT_TESTSUITES.equals(qName)) {
-                        return true;
+                    if (JUNIT_TESTSUITE_TAG_NAME.equals(qName) || JUNIT_TESTSUITES_TAG_NAME.equals(qName)) {
+                        return "junit";
+                    } else if (PMD_TAG_NAME.equals(qName)) {
+                        return "pmd";
+                    } else if (PMD_CPD_TAG_NAME.equals(qName))
+                        return "pmdCpd";
                     }
-                }
             }
         } catch (FileNotFoundException e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
@@ -294,7 +299,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         }
-        return false;
+        return null;
     }
 
     protected void transformFailed() {

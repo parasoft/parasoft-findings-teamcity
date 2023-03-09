@@ -21,13 +21,23 @@ import static com.parasoft.findings.teamcity.common.ReportParserDescriptor.Repor
 public class ReportParserTypes {
     private static final String SOATEST_LABEL = "Parasoft SOAtest"; //$NON-NLS-1$
     private static final String ANALYZERS_LABEL = "Parasoft Analyzers"; //$NON-NLS-1$
+    private static final String SA_PMD_LABEL = "Parasoft Code Inspection"; //$NON-NLS-1$
+    private static final String SA_PMDCPD_LABEL = "Parasoft Duplicates"; //$NON-NLS-1$
 
     private static final String SOATEST_XSL = "soatest-xunit.xsl"; //$NON-NLS-1$
     private static final String ANALYZERS_XSL = "xunit.xsl"; //$NON-NLS-1$
+    private static final String SA_PMD_XSL = "sa-pmd.xsl"; //$NON-NLS-1$
+    private static final String SA_PMDCPD_XSL = "sa-pmdcpd.xsl"; //$NON-NLS-1$
 
-    private static final ReportParserDescriptor[] _parsers = new ReportParserDescriptor[] { 
-        new ReportParserDescriptor(ReportParserType.SOATEST, SOATEST_LABEL, SOATEST_XSL),
-        new ReportParserDescriptor(ReportParserType.ANALYZERS, ANALYZERS_LABEL, ANALYZERS_XSL)
+    public static final String JUNIT_PREFIX = "junit-"; //$NON-NLS-1$
+    public static final String PMD_PREFIX = "pmd-"; //$NON-NLS-1$
+    public static final String PMD_CPD_PREFIX = "pmdCpd-"; //$NON-NLS-1$
+
+    private static final ReportParserDescriptor[] _parsers = new ReportParserDescriptor[] {
+        new ReportParserDescriptor(ReportParserType.SOATEST, SOATEST_LABEL, SOATEST_XSL, JUNIT_PREFIX),
+        new ReportParserDescriptor(ReportParserType.ANALYZERS, ANALYZERS_LABEL, ANALYZERS_XSL, JUNIT_PREFIX),
+        new ReportParserDescriptor(ReportParserType.SA_PMD, SA_PMD_LABEL, SA_PMD_XSL, PMD_PREFIX),
+        new ReportParserDescriptor(ReportParserType.SA_PMD_CPD, SA_PMDCPD_LABEL, SA_PMDCPD_XSL, PMD_CPD_PREFIX)
     };
 
     public static ReportParserDescriptor[] getParsers() {
