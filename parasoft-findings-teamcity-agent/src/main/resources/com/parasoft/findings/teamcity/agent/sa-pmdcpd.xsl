@@ -16,7 +16,7 @@
         <xsl:element name="duplication">
             <xsl:if test="@locEndLn and @locStartln">
                 <xsl:attribute name="lines">
-                    <xsl:value-of select="@locEndLn - @locStartln + 1"/>
+                    <xsl:value-of select="@locEndLn - @locStartln"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:apply-templates select="ElDescList/ElDesc"/>
