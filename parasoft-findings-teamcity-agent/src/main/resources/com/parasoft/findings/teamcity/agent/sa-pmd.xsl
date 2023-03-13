@@ -79,6 +79,7 @@
                 </xsl:attribute>
             </xsl:if>
             <xsl:value-of select="@msg"/>
+            <xsl:apply-templates select="ElDescList/ElDesc"/>
         </xsl:element>
     </xsl:template>
 
@@ -110,6 +111,15 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="ElDesc">
+        <xsl:text>&#xa;        - </xsl:text>
+        <xsl:call-template name="substring-after-last">
+            <xsl:with-param name="string" select="@srcRngFile"/>
+            <xsl:with-param name="delimiter" select="'/'"/>
+        </xsl:call-template>
+        <xsl:value-of select="concat(':', @ln, ' ', @desc)"/>
+    </xsl:template>
+
     <xsl:key name="ruleById" match="Rule" use="@id" />
     <xsl:key name="categoryByName" match="Category" use="@name" />
     <xsl:template name="getRuleCategoryDesc">
@@ -118,6 +128,21 @@
         <xsl:variable name="matchingCategory" select="key('categoryByName', $matchingRule/@cat)" />
         <xsl:if test="$matchingCategory/@desc">
             <xsl:value-of select="$matchingCategory/@desc"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="substring-after-last">
+        <xsl:param name="string" />
+        <xsl:param name="delimiter" />
+        <xsl:if test="contains($string, $delimiter)">
+            <xsl:call-template name="substring-after-last">
+                <xsl:with-param name="string"
+                                select="substring-after($string, $delimiter)" />
+                <xsl:with-param name="delimiter" select="$delimiter" />
+            </xsl:call-template>
+        </xsl:if>
+        <xsl:if test="not(contains($string, $delimiter))">
+            <xsl:value-of select="$string" />
         </xsl:if>
     </xsl:template>
 
