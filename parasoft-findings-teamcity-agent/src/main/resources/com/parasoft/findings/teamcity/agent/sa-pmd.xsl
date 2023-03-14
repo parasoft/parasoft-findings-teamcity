@@ -113,11 +113,21 @@
 
     <xsl:template match="ElDesc">
         <xsl:text>&#xa;        - </xsl:text>
+        <xsl:call-template name="firstLevelList"/>
+        <xsl:apply-templates select="ElDescList/ElDesc" mode="secondLevelList"/>
+    </xsl:template>
+
+    <xsl:template name="firstLevelList">
         <xsl:call-template name="srcRngFilename">
             <xsl:with-param name="string" select="translate(@srcRngFile,'\','/')"/>
             <xsl:with-param name="delimiter" select="'/'"/>
         </xsl:call-template>
         <xsl:value-of select="concat(':', @ln, ' ', @desc)"/>
+    </xsl:template>
+
+    <xsl:template match="ElDesc" mode="secondLevelList">
+        <xsl:text>&#xa;        --- </xsl:text>
+        <xsl:call-template name="firstLevelList"/>
     </xsl:template>
 
     <xsl:key name="ruleById" match="Rule" use="@id" />
