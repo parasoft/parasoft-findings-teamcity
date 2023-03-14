@@ -113,8 +113,8 @@
 
     <xsl:template match="ElDesc">
         <xsl:text>&#xa;        - </xsl:text>
-        <xsl:call-template name="substring-after-last">
-            <xsl:with-param name="string" select="@srcRngFile"/>
+        <xsl:call-template name="srcRngFilename">
+            <xsl:with-param name="string" select="translate(@srcRngFile,'\','/')"/>
             <xsl:with-param name="delimiter" select="'/'"/>
         </xsl:call-template>
         <xsl:value-of select="concat(':', @ln, ' ', @desc)"/>
@@ -131,19 +131,20 @@
         </xsl:if>
     </xsl:template>
 
-    <xsl:template name="substring-after-last">
+    <xsl:template name="srcRngFilename">
         <xsl:param name="string" />
         <xsl:param name="delimiter" />
-        <xsl:if test="contains($string, $delimiter)">
-            <xsl:call-template name="substring-after-last">
-                <xsl:with-param name="string"
-                                select="substring-after($string, $delimiter)" />
-                <xsl:with-param name="delimiter" select="$delimiter" />
-            </xsl:call-template>
-        </xsl:if>
-        <xsl:if test="not(contains($string, $delimiter))">
-            <xsl:value-of select="$string" />
-        </xsl:if>
+        <xsl:choose>
+            <xsl:when test="contains($string, $delimiter)">
+                <xsl:call-template name="srcRngFilename">
+                    <xsl:with-param name="string" select="substring-after($string, $delimiter)" />
+                    <xsl:with-param name="delimiter" select="$delimiter" />
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$string" />
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
 </xsl:stylesheet>
