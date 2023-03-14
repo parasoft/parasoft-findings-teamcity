@@ -47,12 +47,19 @@
                 </xsl:attribute>
             </xsl:if>
             <xsl:if test="@srcRngFile">
+                <xsl:variable name="projectName" select="/ResultsSession/CodingStandards/Projects/Project/@name"/>
                 <xsl:attribute name="path">
                     <xsl:if test="../../@lang = 'java'">
                         <xsl:value-of select="substring-after(@srcRngFile, /ResultsSession/@prjModule)"/>
                     </xsl:if>
-                    <xsl:if test="../../@lang != 'java'">
-                        <xsl:value-of select="@srcRngFile"/>
+                    <xsl:if test="../../@lang = 'cpp' and /ResultsSession/@prjModule">
+                        <xsl:value-of select="substring-after(@srcRngFile, $projectName)"/>
+                    </xsl:if>
+                    <xsl:if test="../../@lang = 'cpp' and not(/ResultsSession/@prjModule)">
+                        <xsl:value-of select="substring-after(@srcRngFile, concat($projectName,'/', $projectName))"/>
+                    </xsl:if>
+                    <xsl:if test="../../@lang = 'dotnet'">
+                        <xsl:value-of select="substring-after(@srcRngFile, /ResultsSession/@project)"/>
                     </xsl:if>
                 </xsl:attribute>
             </xsl:if>
