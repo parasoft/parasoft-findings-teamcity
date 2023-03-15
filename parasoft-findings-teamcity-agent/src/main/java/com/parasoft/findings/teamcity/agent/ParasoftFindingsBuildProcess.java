@@ -250,8 +250,8 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
     private void reportUnexpectedFormat(File from) {
         _invalidReportCount++;
-        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+
-                ". See log for details.");
+        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nThis file has incorrect XML format, make sure it has balanced tags and only has one root tag" +
+                ". \nPlease contact Parasoft Support for more information.");
     }
 
     private String getContentType(File to) {
