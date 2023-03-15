@@ -112,12 +112,18 @@
     </xsl:template>
 
     <xsl:template match="ElDesc">
-        <xsl:text>&#xa;        - </xsl:text>
+        <xsl:param name="indent"/>
+        <xsl:text>&#xa;        </xsl:text>
+        <xsl:value-of select="$indent"/>
+        <xsl:text>- </xsl:text>
         <xsl:call-template name="srcRngFilename">
             <xsl:with-param name="string" select="translate(@srcRngFile,'\','/')"/>
             <xsl:with-param name="delimiter" select="'/'"/>
         </xsl:call-template>
-        <xsl:value-of select="concat(':', @ln, ' ', @desc)"/>
+        <xsl:value-of select="concat(':', @ln, '   ', @desc)"/>
+        <xsl:apply-templates select="ElDescList/ElDesc">
+            <xsl:with-param name="indent" select="concat('   ', $indent)"/>
+        </xsl:apply-templates>
     </xsl:template>
 
     <xsl:key name="ruleById" match="Rule" use="@id" />
