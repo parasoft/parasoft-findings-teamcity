@@ -152,7 +152,7 @@
     </xsl:template>
 
     <xsl:template match="Ann" mode="annotationDetail">
-        <xsl:if test="@kind = 'valEval'">
+        <xsl:if test="@kind != 'cause' and @kind != 'point' ">
             <xsl:value-of select="concat('  *** ', @msg)"/>
         </xsl:if>
     </xsl:template>
