@@ -20,9 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -59,10 +57,10 @@ import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import static com.parasoft.findings.teamcity.common.ReportParserTypes.*;
 
 public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String JUNIT_TESTSUITE_TAG_NAME = "testsuite";
@@ -210,10 +208,14 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         return builder.parse(file);
     }
 
-    private boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
+    private NodeList getNodes(Document document, String xpathExpression) throws XPathExpressionException {
         XPath xpath = xpathFactory.newXPath();
         XPathExpression expr = xpath.compile(xpathExpression);
-        NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+        return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+    }
+
+    private boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
+        NodeList nodes = getNodes(document, xpathExpression);
         return nodes != null && nodes.getLength() > 0;
     }
 
@@ -229,13 +231,21 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
             String type = getContentType(to);
             if (type != null && !_transformFailed) {
-                // Send a notification to TC that a JUnit report is ready to be consumed.
-                // This allows running the plug-in build step without having to configure
-                // the XML Report Processing build feature in a TC project.
                 _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
                 String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
-                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                        ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
+                if("pmd".equals(type)) {
+                    // Use service message to send the inspection and inspectionType from generated pmd-xx.xml file into TC.
+                    // We can not use message service to import generated pdm-xx.xml file directly
+                    // since there is no attribute which can be recognized by TC to be as inspection type description.
+                    // By default, the ruleset value in pdm-xx.xml is used to be as the description if we import it directly, but it is not expected.
+                    parseAndSendViolationMessages(to);
+                } else {
+                    // Send a notification to TC that a JUnit or a PMD/CPD report is ready to be consumed.
+                    // This allows running the plug-in build step without having to configure
+                    // the XML Report Processing build feature in a TC project.
+                    _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                            ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
+                }
             } else {
                 reportUnexpectedFormat(from);
             }
@@ -251,6 +261,57 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private void reportUnexpectedFormat(File from) {
         _invalidReportCount++;
         _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support.");
+    }
+
+    private void parseAndSendViolationMessages(File pmdReport) {
+        try {
+            Map<String, CodeInspectionType> codeInspectionTypeMap = new HashMap<String, CodeInspectionType>();
+            List<CodeInspectionInstance> codeInspectionInstances = new ArrayList<CodeInspectionInstance>();
+            Document document = getDocument(pmdReport);
+
+            // Handle file elements
+            NodeList fileNodes = getNodes(document, "/pmd/file");
+            for(int i = 0; i < fileNodes.getLength(); i++) {
+                Node fileNode = fileNodes.item(i);
+                if(Node.ELEMENT_NODE != fileNode.getNodeType()) {
+                    continue;
+                }
+                // Handle violation elements
+                NodeList violationNodes = fileNode.getChildNodes();
+                for(int j = 0; j < violationNodes.getLength(); j++) {
+                    Node violationNode = violationNodes.item(j);
+                    if(Node.ELEMENT_NODE != violationNode.getNodeType()) {
+                        continue;
+                    }
+                    NamedNodeMap fileAttributes = fileNode.getAttributes();
+                    NamedNodeMap violationAttributes = violationNode.getAttributes();
+                    Node violationContent = violationNode.getFirstChild();
+                    String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
+                    String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
+                    String cit_description = violationAttributes.getNamedItem("ruledescription").getNodeValue();
+                    String ci_message = violationContent.getNodeValue();
+                    String ci_line = violationAttributes.getNamedItem("beginline").getNodeValue();
+                    String ci_fileLocation = fileAttributes.getNamedItem("name").getNodeValue();
+                    String ci_severityNumber = violationAttributes.getNamedItem("priority").getNodeValue();
+
+                    codeInspectionTypeMap.put(cit_rule, new CodeInspectionType(cit_rule, cit_description, cit_category));
+                    codeInspectionInstances.add(new CodeInspectionInstance(cit_rule, ci_message, ci_fileLocation, ci_line, ci_severityNumber));
+                }
+            }
+
+            for (CodeInspectionType type : codeInspectionTypeMap.values()) {
+                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                        ("##teamcity[inspectionType id='"+type.ruleId+"' name='"+type.ruleId+"' description='<html><body>"+type.description+"</body></html>' category='"+type.category+"']"));
+            }
+
+            for (CodeInspectionInstance instance : codeInspectionInstances) {
+                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                        ("##teamcity[inspection typeId='"+instance.typeId+"' message='"+instance.message+"' file='"+instance.file+"' line='"+instance.line+"' SEVERITY='"+instance.severity+"']"));
+            }
+        } catch (Exception e) {
+            reportUnexpectedFormat(pmdReport);
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     private String getContentType(File to) {
@@ -326,6 +387,42 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         public void fatalError(TransformerException e) throws TransformerException {
             LOG.log(Level.SEVERE, e.getMessage(), e);
             _process.transformFailed();
+        }
+    }
+
+    private String escapeString(String str) {
+        return str.replace("|", "||")
+                .replace("'", "|'")
+                .replace("[", "|[")
+                .replace("]", "|]")
+                .replace("\n", "|n");
+    }
+
+    private class CodeInspectionType {
+        String ruleId;
+        String description;
+        String category;
+
+        public CodeInspectionType(String ruleId, String description, String category) {
+            this.ruleId = ruleId;
+            this.description = escapeString(description);
+            this.category = escapeString(category);
+        }
+    }
+
+    private class CodeInspectionInstance {
+        String typeId;
+        String message;
+        String file;
+        String line;
+        String severity;
+
+        public CodeInspectionInstance(String typeId, String message, String file, String line, String severityNumber) {
+            this.typeId = typeId;
+            this.message = escapeString(message);
+            this.file = file;
+            this.line = line;
+            this.severity = "1".equals(severityNumber) ? "ERROR" : "WARNING";
         }
     }
 }
