@@ -112,21 +112,21 @@
     </xsl:template>
 
     <xsl:template match="ElDesc">
-        <xsl:param name="blank"/>
+        <xsl:param name="indent"/>
         <xsl:text>&#xa;        </xsl:text>
-        <xsl:value-of select="$blank"/>
+        <xsl:value-of select="$indent"/>
         <xsl:text>- </xsl:text>
         <xsl:apply-templates select="Anns/Ann" mode="annotation">
-            <xsl:with-param name="annBlank" select="$blank"/>
+            <xsl:with-param name="annIndent" select="$indent"/>
         </xsl:apply-templates>
         <xsl:call-template name="srcRngFilename">
             <xsl:with-param name="string" select="translate(@srcRngFile,'\','/')"/>
             <xsl:with-param name="delimiter" select="'/'"/>
         </xsl:call-template>
-        <xsl:value-of select="concat(':', @ln, ' ', @desc)"/>
+        <xsl:value-of select="concat(':', @ln, '   ', @desc)"/>
         <xsl:apply-templates select="Anns/Ann" mode="annotationDetail"/>
         <xsl:apply-templates select="ElDescList/ElDesc">
-            <xsl:with-param name="blank" select="concat('  ', $blank)"/>
+            <xsl:with-param name="indent" select="concat('   ', $indent)"/>
         </xsl:apply-templates>
     </xsl:template>
 
@@ -158,11 +158,11 @@
     </xsl:template>
 
     <xsl:template match="Ann" mode="annotation">
-        <xsl:param name="annBlank"/>
+        <xsl:param name="annIndent"/>
         <xsl:if test="@kind = 'cause' or @kind = 'point'">
             <xsl:value-of select="@msg"/>
             <xsl:text>&#xa;        </xsl:text>
-            <xsl:value-of select="concat('  ', $annBlank)"/>
+            <xsl:value-of select="concat('   ', $annIndent)"/>
         </xsl:if>
     </xsl:template>
 
