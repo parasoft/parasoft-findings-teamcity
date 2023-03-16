@@ -118,33 +118,19 @@
 
     <xsl:template match="ElDesc">
         <xsl:param name="indent"/>
-        <xsl:text>&#xa;        </xsl:text>
-        <xsl:value-of select="$indent"/>
-        <xsl:text>- </xsl:text>
+        <xsl:value-of select="concat('&#xa;        ', $indent, '- ')"/>
+        <xsl:apply-templates select="Anns/Ann" mode="annotation">
+            <xsl:with-param name="annIndent" select="$indent"/>
+        </xsl:apply-templates>
         <xsl:call-template name="srcRngFilename">
             <xsl:with-param name="string" select="translate(@srcRngFile,'\','/')"/>
             <xsl:with-param name="delimiter" select="'/'"/>
         </xsl:call-template>
         <xsl:value-of select="concat(':', @ln, '   ', @desc)"/>
+        <xsl:apply-templates select="Anns/Ann" mode="annotationDetail"/>
         <xsl:apply-templates select="ElDescList/ElDesc">
             <xsl:with-param name="indent" select="concat('   ', $indent)"/>
         </xsl:apply-templates>
-    </xsl:template>
-
-    <xsl:key name="ruleById" match="Rule" use="@id" />
-    <xsl:key name="categoryByName" match="Category" use="@name" />
-    <xsl:template name="getRuleCategoryDesc">
-        <xsl:param name="ruleId" />
-        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
-        <xsl:variable name="matchingCategory" select="key('categoryByName', $matchingRule/@cat)" />
-        <xsl:if test="$matchingCategory/@desc">
-            <xsl:value-of select="$matchingCategory/@desc"/>
-        </xsl:if>
-    </xsl:template>
-    <xsl:template name="getRuleDesc">
-        <xsl:param name="ruleId" />
-        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
-        <xsl:value-of select="$matchingRule/@desc"/>
     </xsl:template>
 
     <xsl:template name="srcRngFilename">
@@ -163,4 +149,32 @@
         </xsl:choose>
     </xsl:template>
 
+    <xsl:template match="Ann" mode="annotation">
+        <xsl:param name="annIndent"/>
+        <xsl:if test="@kind = 'cause' or @kind = 'point'">
+            <xsl:value-of select="concat(@msg, '&#xa;           ', $annIndent)"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="Ann" mode="annotationDetail">
+        <xsl:if test="@kind = 'valEval'">
+            <xsl:value-of select="concat('  *** ', @msg)"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:key name="ruleById" match="Rule" use="@id" />
+    <xsl:key name="categoryByName" match="Category" use="@name" />
+    <xsl:template name="getRuleCategoryDesc">
+        <xsl:param name="ruleId" />
+        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
+        <xsl:variable name="matchingCategory" select="key('categoryByName', $matchingRule/@cat)" />
+        <xsl:if test="$matchingCategory/@desc">
+            <xsl:value-of select="$matchingCategory/@desc"/>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template name="getRuleDesc">
+        <xsl:param name="ruleId" />
+        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
+        <xsl:value-of select="$matchingRule/@desc"/>
+    </xsl:template>
 </xsl:stylesheet>
