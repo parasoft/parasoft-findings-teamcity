@@ -232,7 +232,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             String type = getContentType(to);
             if (type != null && !_transformFailed) {
                 _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
-                String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
                 if("pmd".equals(type)) {
                     // Use service message to send the inspection and inspectionType from generated pmd-xx.xml file into TC.
                     // We can not use message service to import generated pdm-xx.xml file directly
@@ -243,6 +242,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     // Send a notification to TC that a JUnit or a PMD/CPD report is ready to be consumed.
                     // This allows running the plug-in build step without having to configure
                     // the XML Report Processing build feature in a TC project.
+                    String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
                     _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
                             ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
                 }
