@@ -232,16 +232,17 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
             String type = getContentType(to);
             if (type != null && !_transformFailed) {
-                _build.getBuildLogger().message("Wrote transformed report to " + to.getAbsolutePath());
-                if("pmd".equals(type)) {
-                    // Use service message to send the inspection and inspectionType from generated pmd-xx.xml file into TC.
-                    // We can not use message service to import generated pdm-xx.xml file directly
-                    // since there is no attribute which can be recognized by TC to be as inspection type description.
-                    // By default, the ruleset value in pdm-xx.xml is used to be as the description if we import it directly, but it is not expected.
-                    parseAndSendViolationMessages(to);
+                _build.getBuildLogger().message("Generated report with transformation: " + to.getAbsolutePath());
+                if ("pmd".equals(type)) {
+                    // Parses generated PMD report and sends inspection data to TC using service messages.
+                    // Notes: When importing the generated PMD report directly, the tooltip content will be populated with the 'ruleset' value,
+                    // which is category description in Parasoft reports.
+                    // To avoid this default behavior, a customized attribute is added as 'ruledescription' in the PMD report,
+                    // which is used to send the rule description as the inspection type description in the service message and display it as the tooltip content.
+                    parsePmdReportAndLogInspections(to);
                 } else {
-                    // Send a notification to TC that a JUnit or a PMD/CPD report is ready to be consumed.
-                    // This allows running the plug-in build step without having to configure
+                    // Notify TC that a JUnit report or a PMD/CPD report is available for consumption.
+                    // Notes: This allows running the plug-in build step without having to configure
                     // the XML Report Processing build feature in a TC project.
                     String relativePath = checkoutDir.toURI().relativize(to.toURI()).getPath();
                     _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
@@ -264,7 +265,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support.");
     }
 
-    private void parseAndSendViolationMessages(File pmdReport) {
+    private void parsePmdReportAndLogInspections(File pmdReport) {
         String relativePath = _build.getCheckoutDirectory().toURI().relativize(pmdReport.toURI()).getPath();
         String fileSize = new DecimalFormat("0.00").format(pmdReport.length()/1024f);
         _build.getBuildLogger().message("Importing data from '"+relativePath+"' ("+fileSize+" KB) with 'message service' processor");
@@ -275,18 +276,18 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
             // Handle file elements
             NodeList fileNodes = getNodes(document, "/pmd/file");
-            for(int i = 0; i < fileNodes.getLength(); i++) {
+            for (int i = 0; i < fileNodes.getLength(); i++) {
                 Node fileNode = fileNodes.item(i);
-                if(Node.ELEMENT_NODE != fileNode.getNodeType()) {
+                if (Node.ELEMENT_NODE != fileNode.getNodeType()) {
                     continue;
                 }
                 NamedNodeMap fileAttributes = fileNode.getAttributes();
 
                 // Handle violation elements
                 NodeList violationNodes = fileNode.getChildNodes();
-                for(int j = 0; j < violationNodes.getLength(); j++) {
+                for (int j = 0; j < violationNodes.getLength(); j++) {
                     Node violationNode = violationNodes.item(j);
-                    if(Node.ELEMENT_NODE != violationNode.getNodeType()) {
+                    if (Node.ELEMENT_NODE != violationNode.getNodeType()) {
                         continue;
                     }
                     NamedNodeMap violationAttributes = violationNode.getAttributes();
@@ -298,7 +299,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     String ci_fileLocation = fileAttributes.getNamedItem("name").getNodeValue();
                     String ci_severityNumber = violationAttributes.getNamedItem("priority").getNodeValue();
 
-                    if(!inspectionTypeIds.contains(cit_rule)) {
+                    if (!inspectionTypeIds.contains(cit_rule)) {
                         inspectionTypeIds.add(cit_rule);
                         _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
                                 ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='<html><body>"+escapeString(cit_description)+"</body></html>' category='"+escapeString(cit_category)+"']"));
@@ -394,11 +395,12 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 .replace("'", "|'")
                 .replace("[", "|[")
                 .replace("]", "|]")
-                .replace("\n", "|n");
+                .replace("\n", "|n")
+                .replace("\r", "|r");
     }
 
     private String convertSeverity(String severityNumber) {
-        if(Objects.equals(severityNumber, "1")) {
+        if (Objects.equals(severityNumber, "1")) {
             return "ERROR";
         } else {
             return "WARNING";
