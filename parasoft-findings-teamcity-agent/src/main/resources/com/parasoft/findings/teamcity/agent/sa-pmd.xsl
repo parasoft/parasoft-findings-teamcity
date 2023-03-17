@@ -68,6 +68,11 @@
             <xsl:attribute name="rule">
                 <xsl:value-of select="@rule"/>
             </xsl:attribute>
+            <xsl:attribute name="ruledescription">
+                <xsl:call-template name="getRuleDesc">
+                    <xsl:with-param name="ruleId" select="@rule"/>
+                </xsl:call-template>
+            </xsl:attribute>
             <xsl:attribute name="ruleset">
                 <xsl:call-template name="getRuleCategoryDesc">
                     <xsl:with-param name="ruleId" select="@rule"/>
@@ -166,5 +171,10 @@
         <xsl:if test="$matchingCategory/@desc">
             <xsl:value-of select="$matchingCategory/@desc"/>
         </xsl:if>
+    </xsl:template>
+    <xsl:template name="getRuleDesc">
+        <xsl:param name="ruleId" />
+        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
+        <xsl:value-of select="$matchingRule/@desc"/>
     </xsl:template>
 </xsl:stylesheet>
