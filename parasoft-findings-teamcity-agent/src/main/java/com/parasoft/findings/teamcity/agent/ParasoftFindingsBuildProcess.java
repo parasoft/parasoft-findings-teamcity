@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -264,9 +265,12 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     }
 
     private void parseAndSendViolationMessages(File pmdReport) {
+        String relativePath = _build.getCheckoutDirectory().toURI().relativize(pmdReport.toURI()).getPath();
+        String fileSize = new DecimalFormat("0.00").format(pmdReport.length()/1024f);
+        _build.getBuildLogger().message("Importing data from '"+relativePath+"' ("+fileSize+" KB) with 'message service' processor");
+
         try {
-            Map<String, CodeInspectionType> codeInspectionTypeMap = new HashMap<String, CodeInspectionType>();
-            List<CodeInspectionInstance> codeInspectionInstances = new ArrayList<CodeInspectionInstance>();
+            Set<String> inspectionTypeIds = new HashSet<String>();
             Document document = getDocument(pmdReport);
 
             // Handle file elements
@@ -276,6 +280,8 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 if(Node.ELEMENT_NODE != fileNode.getNodeType()) {
                     continue;
                 }
+                NamedNodeMap fileAttributes = fileNode.getAttributes();
+
                 // Handle violation elements
                 NodeList violationNodes = fileNode.getChildNodes();
                 for(int j = 0; j < violationNodes.getLength(); j++) {
@@ -283,30 +289,23 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     if(Node.ELEMENT_NODE != violationNode.getNodeType()) {
                         continue;
                     }
-                    NamedNodeMap fileAttributes = fileNode.getAttributes();
                     NamedNodeMap violationAttributes = violationNode.getAttributes();
-                    Node violationContent = violationNode.getFirstChild();
                     String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
                     String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
                     String cit_description = violationAttributes.getNamedItem("ruledescription").getNodeValue();
-                    String ci_message = violationContent.getNodeValue();
+                    String ci_message = violationNode.getTextContent();
                     String ci_line = violationAttributes.getNamedItem("beginline").getNodeValue();
                     String ci_fileLocation = fileAttributes.getNamedItem("name").getNodeValue();
                     String ci_severityNumber = violationAttributes.getNamedItem("priority").getNodeValue();
 
-                    codeInspectionTypeMap.put(cit_rule, new CodeInspectionType(cit_rule, cit_description, cit_category));
-                    codeInspectionInstances.add(new CodeInspectionInstance(cit_rule, ci_message, ci_fileLocation, ci_line, ci_severityNumber));
+                    if(!inspectionTypeIds.contains(cit_rule)) {
+                        inspectionTypeIds.add(cit_rule);
+                        _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                                ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='<html><body>"+escapeString(cit_description)+"</body></html>' category='"+escapeString(cit_category)+"']"));
+                    }
+                    _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                            ("##teamcity[inspection typeId='"+cit_rule+"' message='"+escapeString(ci_message)+"' file='"+ci_fileLocation+"' line='"+ci_line+"' SEVERITY='"+convertSeverity(ci_severityNumber)+"']"));
                 }
-            }
-
-            for (CodeInspectionType type : codeInspectionTypeMap.values()) {
-                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                        ("##teamcity[inspectionType id='"+type.ruleId+"' name='"+type.ruleId+"' description='<html><body>"+type.description+"</body></html>' category='"+type.category+"']"));
-            }
-
-            for (CodeInspectionInstance instance : codeInspectionInstances) {
-                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                        ("##teamcity[inspection typeId='"+instance.typeId+"' message='"+instance.message+"' file='"+instance.file+"' line='"+instance.line+"' SEVERITY='"+instance.severity+"']"));
             }
         } catch (Exception e) {
             reportUnexpectedFormat(pmdReport);
@@ -398,31 +397,11 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 .replace("\n", "|n");
     }
 
-    private class CodeInspectionType {
-        String ruleId;
-        String description;
-        String category;
-
-        public CodeInspectionType(String ruleId, String description, String category) {
-            this.ruleId = ruleId;
-            this.description = escapeString(description);
-            this.category = escapeString(category);
-        }
-    }
-
-    private class CodeInspectionInstance {
-        String typeId;
-        String message;
-        String file;
-        String line;
-        String severity;
-
-        public CodeInspectionInstance(String typeId, String message, String file, String line, String severityNumber) {
-            this.typeId = typeId;
-            this.message = escapeString(message);
-            this.file = file;
-            this.line = line;
-            this.severity = "1".equals(severityNumber) ? "ERROR" : "WARNING";
+    private String convertSeverity(String severityNumber) {
+        if(Objects.equals(severityNumber, "1")) {
+            return "ERROR";
+        } else {
+            return "WARNING";
         }
     }
 }
