@@ -19,7 +19,7 @@
     </td>
   </tr>
   <tr>
-    <th><label for="${props.settingsLocation}">Settings: <l:star/></label></th>
+    <th><label for="${props.settingsLocation}">Settings: </label></th>
     <td>
       <props:textProperty id="${props.settingsLocation}" name="${props.settingsLocation}" className="longField"/>
       <span class="error" id="error_${props.settingsLocation}"></span>
