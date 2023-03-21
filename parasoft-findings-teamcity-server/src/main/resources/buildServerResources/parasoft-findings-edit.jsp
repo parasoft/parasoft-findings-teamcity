@@ -18,4 +18,14 @@
       <span class="smallNote">Relative location in project check out directory.</span>
     </td>
   </tr>
+  <tr>
+    <th><label for="${props.settingsLocation}">Settings: <l:star/></label></th>
+    <td>
+      <props:textProperty id="${props.settingsLocation}" name="${props.settingsLocation}" className="longField"/>
+      <span class="error" id="error_${props.settingsLocation}"></span>
+      <span class="smallNote">Absolute or checkout directory relative path to the settings file.</span>
+      <span class="smallNote">In order to get access to rules documentation:</span>
+      <span class="smallNote">&nbsp;&nbsp;&nbsp;&nbsp;- use dtp.url property to specify DTP server address.</span>
+    </td>
+  </tr>
 </l:settingsGroup>

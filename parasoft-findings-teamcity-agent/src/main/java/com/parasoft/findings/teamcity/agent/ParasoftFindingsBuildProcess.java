@@ -16,40 +16,11 @@
 
 package com.parasoft.findings.teamcity.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.*;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.*;
-
 import com.parasoft.findings.teamcity.common.ParasoftFindingsProperties;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor.ReportParserType;
 import com.parasoft.findings.teamcity.common.ReportParserTypes;
-
+import com.parasoft.xtest.common.services.DefaultServicesProvider;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 import jetbrains.buildServer.agent.BuildFinishedStatus;
@@ -63,7 +34,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String JUNIT_TESTSUITE_TAG_NAME = "testsuite";
     private static final String JUNIT_TESTSUITES_TAG_NAME = "testsuites";
     private static final String PMD_TAG_NAME = "pmd";
@@ -82,10 +79,15 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private boolean _transformFailed = false;
     private int _invalidReportCount;
 
+    private RuleDocumentationUrlProvider _ruleDocumentationUrlProvider;
+    private LocalSettingsHelper _localSettingsHelper;
+
+
     public ParasoftFindingsBuildProcess(AgentRunningBuild build, BuildRunnerContext context) {
         _build = build;
         _context = context;
         _xsltErrorListener = new XsltErrorListener(this);
+        _localSettingsHelper = new LocalSettingsHelper(_build);
     }
 
     @Override
@@ -153,9 +155,18 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private void doWork() {
         _invalidReportCount = 0;
         Map<String, String> params = _context.getRunnerParameters();
-        String reportsLocation = params.get(REPORTS_LOCATION);
         File checkoutDir = _build.getCheckoutDirectory();
 
+        String settingsPath = params.get(SETTINGS_LOCATION);
+        Properties properties = _localSettingsHelper.loadLocalSettings(checkoutDir, settingsPath);
+        if(!properties.isEmpty()) {
+            if(_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty("dtp.url"))) {
+                ParasoftServicesProvider.init();
+                _ruleDocumentationUrlProvider = new RuleDocumentationUrlProvider(_build, properties);
+            }
+        }
+
+        String reportsLocation = params.get(REPORTS_LOCATION);
         List<File> reports = AntPatternFileCollector.scanDir(checkoutDir, new String[] {reportsLocation}, null);
         if (reports.isEmpty()) {
             _build.getBuildLogger().error("No reports found for pattern: "+reportsLocation);
@@ -293,7 +304,14 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     NamedNodeMap violationAttributes = violationNode.getAttributes();
                     String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
                     String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
-                    String cit_description = violationAttributes.getNamedItem("ruledescription").getNodeValue();
+                    String ruleAnalyserId = violationAttributes.getNamedItem("ruleanalyser").getNodeValue();
+                    String cit_descriptionOrUrl = null;
+                    if(_ruleDocumentationUrlProvider != null) {
+                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyserId, cit_rule);
+                    }
+                    if(cit_descriptionOrUrl == null) {
+                        cit_descriptionOrUrl = "<html><body>"+escapeString(violationAttributes.getNamedItem("ruledescription").getNodeValue())+"</body></html>";
+                    }
                     String ci_message = violationNode.getTextContent();
                     String ci_line = violationAttributes.getNamedItem("beginline").getNodeValue();
                     String ci_fileLocation = fileAttributes.getNamedItem("name").getNodeValue();
@@ -302,7 +320,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     if (!inspectionTypeIds.contains(cit_rule)) {
                         inspectionTypeIds.add(cit_rule);
                         _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                                ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='<html><body>"+escapeString(cit_description)+"</body></html>' category='"+escapeString(cit_category)+"']"));
+                                ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='"+cit_descriptionOrUrl+"' category='"+escapeString(cit_category)+"']"));
                     }
                     _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
                             ("##teamcity[inspection typeId='"+cit_rule+"' message='"+escapeString(ci_message)+"' file='"+ci_fileLocation+"' line='"+ci_line+"' SEVERITY='"+convertSeverity(ci_severityNumber)+"']"));
