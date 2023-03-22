@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Parasoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.parasoft.findings.teamcity.agent;
 
 import com.parasoft.xtest.common.text.UString;
@@ -48,7 +64,7 @@ public class LocalSettingsHelper {
      *   https://locahohost:8443/anyString is invalid.
     * */
     public boolean isDtpUrlValidForTeamCity(String dtpUrl) {
-        if(Objects.isNull(dtpUrl)) {
+        if (Objects.isNull(dtpUrl)) {
             _build.getBuildLogger().warning("dtp.url property not found");
             return false;
         }
@@ -57,7 +73,7 @@ public class LocalSettingsHelper {
         Pattern p = Pattern.compile(validUrlPattern);
         Matcher m = p.matcher(dtpUrl);
         boolean isValid = m.matches();
-        if(!isValid) {
+        if (!isValid) {
             _build.getBuildLogger().warning("dtp.url property value is invalid for TeamCity. Try to use https://{domainName} instead of https://{hostName}:{port}");
         }
         return isValid;

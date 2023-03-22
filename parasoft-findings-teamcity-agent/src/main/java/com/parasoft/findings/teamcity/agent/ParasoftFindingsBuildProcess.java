@@ -159,8 +159,8 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
 
         String settingsPath = params.get(SETTINGS_LOCATION);
         Properties properties = _localSettingsHelper.loadLocalSettings(checkoutDir, settingsPath);
-        if(!properties.isEmpty()) {
-            if(_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty("dtp.url"))) {
+        if (!properties.isEmpty()) {
+            if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty("dtp.url"))) {
                 ParasoftServicesProvider.init();
                 _ruleDocumentationUrlProvider = new RuleDocumentationUrlProvider(_build, properties);
             }
@@ -306,10 +306,10 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
                     String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
                     String ruleAnalyserId = violationAttributes.getNamedItem("ruleanalyser").getNodeValue();
                     String cit_descriptionOrUrl = null;
-                    if(_ruleDocumentationUrlProvider != null) {
+                    if (_ruleDocumentationUrlProvider != null) {
                         cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyserId, cit_rule);
                     }
-                    if(cit_descriptionOrUrl == null) {
+                    if (cit_descriptionOrUrl == null) {
                         cit_descriptionOrUrl = "<html><body>"+escapeString(violationAttributes.getNamedItem("ruledescription").getNodeValue())+"</body></html>";
                     }
                     String ci_message = violationNode.getTextContent();
