@@ -68,7 +68,7 @@ public class LocalSettingsHelper {
             _build.getBuildLogger().warning("dtp.url property not found");
             return false;
         }
-        _build.getBuildLogger().message("dtp.url property value is '" + dtpUrl + "'");
+        _build.getBuildLogger().message("dtp.url property value: " + dtpUrl);
         dtpUrl = dtpUrl.endsWith("/") ? dtpUrl : dtpUrl + "/";
         Pattern p = Pattern.compile(validUrlPattern);
         Matcher m = p.matcher(dtpUrl);
