@@ -47,10 +47,11 @@ public class LocalSettingsHelper {
             return new Properties();
         }
         File localSettingsFile = new File(settingsPath);
-        if (!localSettingsFile.exists()) {
-            localSettingsFile = new File(checkoutDir, settingsPath);
+        if (localSettingsFile.isAbsolute() && localSettingsFile.exists()) {
+            return loadProperties(localSettingsFile);
+        } else {
+            return loadProperties(new File(checkoutDir, settingsPath));
         }
-        return loadProperties(localSettingsFile);
     }
 
     /**
