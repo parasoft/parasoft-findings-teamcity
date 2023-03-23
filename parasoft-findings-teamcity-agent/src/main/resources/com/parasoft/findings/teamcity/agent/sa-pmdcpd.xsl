@@ -19,7 +19,6 @@
                     <xsl:value-of select="@locEndLn - @locStartln"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:attribute name="tokens">-1</xsl:attribute>
             <xsl:apply-templates select="ElDescList/ElDesc"/>
         </xsl:element>
     </xsl:template>
