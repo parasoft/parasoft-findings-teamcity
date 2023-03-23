@@ -54,33 +54,29 @@ public class LocalSettingsHelper {
     }
 
     /**
-     * Check the value is a valid URL for TeamCity. <br>
-     * The value will be used to be as prefix of a link which points to the doc on DTP server.<br>
-     * But TeamCity has a limitation for the link,
-     * it needs the value to be like https://{domainName}/{anyString} instead of https://{hostName}:{port}/{anyString}"<br>
-     * Here is the <a href='https://youtrack.jetbrains.com/issue/TW-80190/Make-inspection-type-despection-icon-support-an-internal-link'>feature request for TeamCity</a><br>
-     * e.g. <br>
-     *   https://dtp.parasoft.com/anyString is valid.<br>
-     *   https://locahohost:8443/anyString is invalid.
+     * The logic of this method is based on a limitation in TeamCity's URL validation pattern for link icon.<br>
+     * Basically it does not support port numbers in the URL. The pattern used is /(\w+)://([\w.]+)/(\S*)/.
+     * We can improve the support once this feature request is resolved:
+     * <a href='https://youtrack.jetbrains.com/issue/TW-80190/Make-inspection-type-despection-icon-support-an-internal-link'>link</a><br>
     * */
     public boolean isDtpUrlValidForTeamCity(String dtpUrl) {
         if (Objects.isNull(dtpUrl)) {
-            _build.getBuildLogger().warning("dtp.url property not found");
+            _build.getBuildLogger().warning("\"dtp.url\" property not found");
             return false;
         }
-        _build.getBuildLogger().message("dtp.url property value: " + dtpUrl);
+        _build.getBuildLogger().message("\"dtp.url\" property value: " + dtpUrl);
         dtpUrl = dtpUrl.endsWith("/") ? dtpUrl : dtpUrl + "/";
         Pattern p = Pattern.compile(validUrlPattern);
         Matcher m = p.matcher(dtpUrl);
         boolean isValid = m.matches();
         if (!isValid) {
-            _build.getBuildLogger().warning("dtp.url property value is invalid for TeamCity. Try to use https://{domainName} instead of https://{hostName}:{port}");
+            _build.getBuildLogger().warning("The value of \"dtp.url\" property is invalid for TeamCity. Please ensure that \"https://{domainName}\" is used instead of \"https://{hostName}:{port}\"");
         }
         return isValid;
     }
 
     private Properties loadProperties(File file) {
-        _build.getBuildLogger().message("Path to local settings is " + file.getAbsolutePath());
+        _build.getBuildLogger().message("File path for local settings is " + file.getAbsolutePath());
         Properties props = new Properties();
         InputStream input = null;
         try {
