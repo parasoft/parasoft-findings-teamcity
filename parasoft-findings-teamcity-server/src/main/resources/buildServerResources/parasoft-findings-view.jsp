@@ -17,3 +17,7 @@
     <label for="${props.reportsLocation}">Report location pattern: <l:star /></label>
     <props:displayValue name="${props.reportsLocation}" emptyValue="not specified"/>
   </div>
+  <div class="parameter">
+    <label for="${props.settingsLocation}">Settings: </label>
+    <props:displayValue name="${props.settingsLocation}" emptyValue="not specified"/>
+  </div>
