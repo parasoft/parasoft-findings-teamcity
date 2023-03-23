@@ -55,7 +55,7 @@ public class LocalSettingsHelper {
 
     /**
      * The logic of this method is based on a limitation in TeamCity's URL validation pattern for link icon.<br>
-     * Basically it does not support port numbers in the URL. The pattern used is /(\w+)://([\w.]+)/(\S*)/.
+     * Basically it only support domain name instead of host and port in the URL. The pattern used is /(\w+)://([\w.]+)/(\S*)/.
      * We can improve the support once this feature request is resolved:
      * <a href='https://youtrack.jetbrains.com/issue/TW-80190/Make-inspection-type-despection-icon-support-an-internal-link'>link</a><br>
     * */
