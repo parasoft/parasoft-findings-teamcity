@@ -49,7 +49,7 @@
             <xsl:if test="@srcRngFile">
                 <xsl:attribute name="path">
                     <xsl:choose>
-                        <xsl:when test="/ResultsSession/@toolName = 'C++test'">
+                        <xsl:when test="not(/ResultsSession/@prjModule)">
                             <xsl:apply-templates select="/ResultsSession/CodingStandards/Projects/Project">
                                 <xsl:with-param name="srcRngFile" select="@srcRngFile"/>
                             </xsl:apply-templates>
@@ -68,8 +68,12 @@
 
     <xsl:template match="Project">
         <xsl:param name="srcRngFile"/>
-        <xsl:if test="contains($srcRngFile, concat(@name,'/', @name))">
+        <xsl:param name="resProjPath"/>
+        <xsl:if test="$srcRngFile and contains($srcRngFile, concat(@name,'/', @name))">
             <xsl:value-of select="substring-after($srcRngFile, concat(@name,'/', @name))"/>
+        </xsl:if>
+        <xsl:if test="$resProjPath">
+            <xsl:value-of select="concat('/', @name, '/', $resProjPath)"/>
         </xsl:if>
     </xsl:template>
 
@@ -79,10 +83,12 @@
         <xsl:if test="$projectLocRef = @locRef">
             <xsl:choose>
                 <xsl:when test="@resProjPath">
-                    <xsl:if test="/ResultsSession/@toolName = 'DTP Engine for .NET'">
-                        <xsl:value-of select="concat('/', @project, '/', @resProjPath)"/>
+                    <xsl:if test="/ResultsSession/@toolId = 'dottest'">
+                        <xsl:apply-templates select="/ResultsSession/CodingStandards/Projects/Project">
+                            <xsl:with-param name="resProjPath" select="@resProjPath"/>
+                        </xsl:apply-templates>
                     </xsl:if>
-                    <xsl:if test="/ResultsSession/@toolName != 'DTP Engine for .NET'">
+                    <xsl:if test="/ResultsSession/@toolId != 'dottest'">
                         <xsl:value-of select="concat('/', @resProjPath)"/>
                     </xsl:if>
                 </xsl:when>
