@@ -47,14 +47,58 @@
             </xsl:if>
             <xsl:if test="@srcRngFile">
                 <xsl:attribute name="path">
-                    <xsl:if test="../../@lang = 'java'">
-                        <xsl:value-of select="substring-after(@srcRngFile, /ResultsSession/@prjModule)"/>
-                    </xsl:if>
-                    <xsl:if test="../../@lang != 'java'">
-                        <xsl:value-of select="@srcRngFile"/>
-                    </xsl:if>
+                    <xsl:choose>
+                        <xsl:when test="not(/ResultsSession/@prjModule)">
+                            <!-- For cppTest professional report, "prjModule" attribute is not present.
+                                Project name presents twice in the full source path and needs to be removed. -->
+                            <xsl:call-template name="handlePathForCppTestPro">
+                                <xsl:with-param name="srcRngFile" select="@srcRngFile"/>
+                                <xsl:with-param name="projects" select="/ResultsSession/CodingStandards/Projects"/>
+                            </xsl:call-template>
+                        </xsl:when>
+                        <xsl:when test="/ResultsSession/@toolId = 'dottest'">
+                            <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
+                                As a result, the root folder will be removed from full source path. -->
+                            <xsl:value-of select="concat('/', substring-after(@srcRngFile, '/'))"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
+                            <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
+                                <xsl:with-param name="elDescLocRef" select="@locRef"/>
+                                <xsl:with-param name="srcRngFile" select="@srcRngFile"/>
+                            </xsl:apply-templates>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:attribute>
             </xsl:if>
         </xsl:element>
+    </xsl:template>
+
+    <xsl:template name="handlePathForCppTestPro">
+        <xsl:param name="srcRngFile"/>
+        <xsl:param name="projects"/>
+        <xsl:for-each select="$projects/Project">
+            <xsl:variable name="pathPrefix" select="concat('/', @name,'/', @name)"/>
+            <xsl:if test="starts-with($srcRngFile, $pathPrefix)">
+                <xsl:value-of select="substring-after($srcRngFile, $pathPrefix)"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="Loc">
+        <xsl:param name="elDescLocRef"/>
+        <xsl:param name="srcRngFile"/>
+        <xsl:if test="$elDescLocRef = @locRef">
+            <xsl:choose>
+                <xsl:when test="@resProjPath">
+                    <xsl:value-of select="concat('/', @resProjPath)"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!-- Reports structure for Jtest, dotTest, cppTest and cppTest professional are not strictly consistent.
+                            Full source path will be displayed if no rules can be applied. -->
+                    <xsl:value-of select="$srcRngFile"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
