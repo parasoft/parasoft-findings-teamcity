@@ -78,9 +78,9 @@
     <xsl:template name="handlePathForCppTestPro">
         <xsl:param name="srcRngFile"/>
         <xsl:param name="projects"/>
-        <xsl:variable name="pathPrefix" select="concat('/', @name,'/', @name)"/>
-        <xsl:for-each select="$projects/Project[starts-with($srcRngFile, $pathPrefix)]">
-            <xsl:if test="position() = 1">
+        <xsl:for-each select="$projects/Project">
+            <xsl:variable name="pathPrefix" select="concat('/', @name,'/', @name)"/>
+            <xsl:if test="starts-with($srcRngFile, $pathPrefix)">
                 <xsl:value-of select="substring-after($srcRngFile, $pathPrefix)"/>
             </xsl:if>
         </xsl:for-each>
