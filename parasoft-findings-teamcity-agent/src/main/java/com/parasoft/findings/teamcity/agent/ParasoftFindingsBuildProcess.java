@@ -28,6 +28,7 @@ import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -307,6 +308,11 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
                     String ruleAnalyserId = violationAttributes.getNamedItem("ruleanalyser").getNodeValue();
                     String cit_descriptionOrUrl = null;
                     if (_ruleDocumentationUrlProvider != null) {
+                        if (StringUtils.isEmpty(ruleAnalyserId)) {
+                            String violationType = violationAttributes.getNamedItem("type").getNodeValue();
+                            String categoryId = violationAttributes.getNamedItem("categoryid").getNodeValue();
+                            ruleAnalyserId = mapToAnalyzer(violationType, categoryId);
+                        }
                         cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyserId, cit_rule);
                     }
                     if (cit_descriptionOrUrl == null) {
@@ -378,6 +384,22 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
             }
         }
         return null;
+    }
+
+    private String mapToAnalyzer(String violationType, String categoryId) {
+        switch (violationType){
+            case "DupViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.dupcode";
+            case "FlowViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.flow";
+            case "MetViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.metrics";
+            default:
+                if ("GLOBAL".equals(categoryId)) {
+                    return "com.parasoft.xtest.cpp.analyzer.static.global";
+                }
+                return "com.parasoft.xtest.cpp.analyzer.static.pattern";
+        }
     }
 
     protected void transformFailed() {
