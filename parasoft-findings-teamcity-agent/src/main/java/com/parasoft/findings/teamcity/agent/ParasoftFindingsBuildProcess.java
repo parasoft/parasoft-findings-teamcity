@@ -305,15 +305,15 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
                     NamedNodeMap violationAttributes = violationNode.getAttributes();
                     String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
                     String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
-                    String ruleAnalyserId = violationAttributes.getNamedItem("ruleanalyser").getNodeValue();
+                    String ruleAnalyzerId = violationAttributes.getNamedItem("ruleanalyzer").getNodeValue();
                     String cit_descriptionOrUrl = null;
                     if (_ruleDocumentationUrlProvider != null) {
-                        if (StringUtils.isEmpty(ruleAnalyserId)) {
+                        if (StringUtils.isEmpty(ruleAnalyzerId)) {
                             String violationType = violationAttributes.getNamedItem("type").getNodeValue();
                             String categoryId = violationAttributes.getNamedItem("categoryid").getNodeValue();
-                            ruleAnalyserId = mapToAnalyzer(violationType, categoryId);
+                            ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
                         }
-                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyserId, cit_rule);
+                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
                     }
                     if (cit_descriptionOrUrl == null) {
                         cit_descriptionOrUrl = "<html><body>"+escapeString(violationAttributes.getNamedItem("ruledescription").getNodeValue())+"</body></html>";

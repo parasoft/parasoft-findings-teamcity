@@ -71,8 +71,8 @@
             <xsl:attribute name="rule">
                 <xsl:value-of select="@rule"/>
             </xsl:attribute>
-            <xsl:attribute name="ruleanalyser">
-                <xsl:call-template name="getRuleAnalyser">
+            <xsl:attribute name="ruleanalyzer">
+                <xsl:call-template name="getRuleAnalyzer">
                     <xsl:with-param name="ruleId" select="@rule"/>
                 </xsl:call-template>
             </xsl:attribute>
@@ -198,7 +198,7 @@
         <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
         <xsl:value-of select="$matchingRule/@desc"/>
     </xsl:template>
-    <xsl:template name="getRuleAnalyser">
+    <xsl:template name="getRuleAnalyzer">
         <xsl:param name="ruleId" />
         <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
         <xsl:value-of select="$matchingRule/@analyzer"/>
