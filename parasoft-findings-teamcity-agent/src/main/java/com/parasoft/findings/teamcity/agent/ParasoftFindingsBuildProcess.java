@@ -28,6 +28,7 @@ import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -304,10 +305,15 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
                     NamedNodeMap violationAttributes = violationNode.getAttributes();
                     String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
                     String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
-                    String ruleAnalyserId = violationAttributes.getNamedItem("ruleanalyser").getNodeValue();
+                    String ruleAnalyzerId = violationAttributes.getNamedItem("ruleanalyzer").getNodeValue();
                     String cit_descriptionOrUrl = null;
                     if (_ruleDocumentationUrlProvider != null) {
-                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyserId, cit_rule);
+                        if (StringUtils.isEmpty(ruleAnalyzerId)) {
+                            String violationType = violationAttributes.getNamedItem("type").getNodeValue();
+                            String categoryId = violationAttributes.getNamedItem("categoryid").getNodeValue();
+                            ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
+                        }
+                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
                     }
                     if (cit_descriptionOrUrl == null) {
                         cit_descriptionOrUrl = "<html><body>"+escapeString(violationAttributes.getNamedItem("ruledescription").getNodeValue())+"</body></html>";
@@ -378,6 +384,22 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
             }
         }
         return null;
+    }
+
+    private String mapToAnalyzer(String violationType, String categoryId) {
+        switch (violationType){
+            case "DupViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.dupcode";
+            case "FlowViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.flow";
+            case "MetViol":
+                return "com.parasoft.xtest.cpp.analyzer.static.metrics";
+            default:
+                if ("GLOBAL".equals(categoryId)) {
+                    return "com.parasoft.xtest.cpp.analyzer.static.global";
+                }
+                return "com.parasoft.xtest.cpp.analyzer.static.pattern";
+        }
     }
 
     protected void transformFailed() {

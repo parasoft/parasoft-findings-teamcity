@@ -42,6 +42,9 @@
 
     <xsl:template name="violation">
         <xsl:element name="violation">
+            <xsl:attribute name="type">
+                <xsl:value-of select="local-name()" />
+            </xsl:attribute>
             <xsl:if test="@locStartln">
                 <xsl:attribute name="beginline">
                     <xsl:value-of select="@locStartln" />
@@ -68,8 +71,8 @@
             <xsl:attribute name="rule">
                 <xsl:value-of select="@rule"/>
             </xsl:attribute>
-            <xsl:attribute name="ruleanalyser">
-                <xsl:call-template name="getRuleAnalyser">
+            <xsl:attribute name="ruleanalyzer">
+                <xsl:call-template name="getRuleAnalyzer">
                     <xsl:with-param name="ruleId" select="@rule"/>
                 </xsl:call-template>
             </xsl:attribute>
@@ -78,11 +81,9 @@
                     <xsl:with-param name="ruleId" select="@rule"/>
                 </xsl:call-template>
             </xsl:attribute>
-            <xsl:attribute name="ruleset">
-                <xsl:call-template name="getRuleCategoryDesc">
-                    <xsl:with-param name="ruleId" select="@rule"/>
-                </xsl:call-template>
-            </xsl:attribute>
+            <xsl:call-template name="getRuleCategoryInfo">
+                <xsl:with-param name="ruleId" select="@rule"/>
+            </xsl:call-template>
             <xsl:if test="@pkg">
                 <xsl:attribute name="package">
                     <xsl:value-of select="@pkg"/>
@@ -177,12 +178,27 @@
             <xsl:value-of select="$matchingCategory/@desc"/>
         </xsl:if>
     </xsl:template>
+    <xsl:template name="getRuleCategoryInfo">
+        <xsl:param name="ruleId" />
+        <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
+        <xsl:variable name="matchingCategory" select="key('categoryByName', $matchingRule/@cat)" />
+        <xsl:attribute name="ruleset">
+            <xsl:if test="$matchingCategory/@desc">
+                <xsl:value-of select="$matchingCategory/@desc"/>
+            </xsl:if>
+        </xsl:attribute>
+        <xsl:attribute name="categoryid">
+            <xsl:if test="$matchingCategory/@name">
+                <xsl:value-of select="$matchingCategory/@name"/>
+            </xsl:if>
+        </xsl:attribute>
+    </xsl:template>
     <xsl:template name="getRuleDesc">
         <xsl:param name="ruleId" />
         <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
         <xsl:value-of select="$matchingRule/@desc"/>
     </xsl:template>
-    <xsl:template name="getRuleAnalyser">
+    <xsl:template name="getRuleAnalyzer">
         <xsl:param name="ruleId" />
         <xsl:variable name="matchingRule" select="key('ruleById', $ruleId)" />
         <xsl:value-of select="$matchingRule/@analyzer"/>
