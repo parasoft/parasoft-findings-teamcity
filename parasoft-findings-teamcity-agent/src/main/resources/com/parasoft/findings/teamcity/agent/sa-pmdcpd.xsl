@@ -59,7 +59,7 @@
                         <xsl:when test="/ResultsSession/@toolId = 'dottest'">
                             <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
                                 As a result, the root folder will be removed from full source path. -->
-                            <xsl:value-of select="substring-after(@srcRngFile, '/')"/>
+                            <xsl:value-of select="concat('./', substring-after(@srcRngFile, '/'))"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
@@ -80,7 +80,7 @@
         <xsl:for-each select="$projects/Project">
             <xsl:variable name="pathPrefix" select="concat('/', @name, '/' , @name, '/')"/>
             <xsl:if test="starts-with($srcRngFile, $pathPrefix)">
-                <xsl:value-of select="substring-after($srcRngFile, $pathPrefix)"/>
+                <xsl:value-of select="concat('./', substring-after($srcRngFile, $pathPrefix))"/>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
@@ -91,7 +91,7 @@
         <xsl:if test="$elDescLocRef = @locRef">
             <xsl:choose>
                 <xsl:when test="@resProjPath">
-                    <xsl:value-of select="@resProjPath"/>
+                    <xsl:value-of select="concat('./', @resProjPath)"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <!-- Reports structure for Jtest, dotTest, cppTest and cppTest professional are not strictly consistent.
