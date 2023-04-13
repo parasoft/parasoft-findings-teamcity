@@ -89,7 +89,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <finalName>parasoft-findings-teamcity</finalName>
+              <finalName>${project.parent.artifactId}-${project.parent.version}</finalName>
               <outputDirectory>${project.parent.build.directory}</outputDirectory>
               <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
