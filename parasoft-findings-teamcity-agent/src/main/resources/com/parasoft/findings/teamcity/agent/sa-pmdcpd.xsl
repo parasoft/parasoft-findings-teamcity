@@ -1,8 +1,31 @@
 <?xml version="1.0"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common">
     <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
 
     <xsl:variable name="isStaticAnalysisResult" select="count(/ResultsSession/CodingStandards) = 1" />
+    <!-- For cppTest professional report, "prjModule" attribute is not present. -->
+    <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
+
+    <!-- Handle file location for C/C++Test pro report -->
+    <!-- Not suitable for all kinds of project reports.
+               Incorrect `loc` value may happen in `Res` node under `TestedFilesDetails` node.
+               This is the limitation of C/C++Test pro report. -->
+    <xsl:variable name="locationMap">
+        <xsl:if test="$isCPPProReport">
+            <map>
+                <xsl:for-each select="/ResultsSession/CodingStandards/TestedFilesDetails/Total//Res[@loc]">
+                        <entry>
+                            <xsl:attribute name="verboseLocation">
+                                <xsl:value-of select="@loc"/>
+                            </xsl:attribute>
+                            <xsl:attribute name="relativeLocation">
+                                <xsl:value-of select="substring-after(@loc, concat('/', ./ancestor::Project/@name, '/', substring-before(concat(./ancestor::Res[last()]/@name, '/'), '/')))"/>
+                            </xsl:attribute>
+                        </entry>
+                </xsl:for-each>
+            </map>
+        </xsl:if>
+    </xsl:variable>
 
     <xsl:template match="/" >
         <xsl:if test="$isStaticAnalysisResult">
@@ -48,13 +71,10 @@
             <xsl:if test="@srcRngFile">
                 <xsl:attribute name="path">
                     <xsl:choose>
-                        <xsl:when test="not(/ResultsSession/@prjModule)">
-                            <!-- For cppTest professional report, "prjModule" attribute is not present.
-                                Project name presents twice in the full source path and needs to be removed. -->
-                            <xsl:call-template name="handlePathForCppTestPro">
-                                <xsl:with-param name="srcRngFile" select="@srcRngFile"/>
-                                <xsl:with-param name="projects" select="/ResultsSession/CodingStandards/Projects"/>
-                            </xsl:call-template>
+                        <xsl:when test="$isCPPProReport">
+                            <xsl:variable name="verboseLocation" select="@srcRngFile"/>
+                            <xsl:variable name="relativeLocation" select="exsl:node-set($locationMap)/map/entry[@verboseLocation = $verboseLocation]/@relativeLocation"/>
+                            <xsl:value-of select="concat('.', $relativeLocation)" />
                         </xsl:when>
                         <xsl:when test="/ResultsSession/@toolId = 'dottest'">
                             <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
@@ -72,17 +92,6 @@
                 </xsl:attribute>
             </xsl:if>
         </xsl:element>
-    </xsl:template>
-
-    <xsl:template name="handlePathForCppTestPro">
-        <xsl:param name="srcRngFile"/>
-        <xsl:param name="projects"/>
-        <xsl:for-each select="$projects/Project">
-            <xsl:variable name="pathPrefix" select="concat('/', @name, '/' , @name, '/')"/>
-            <xsl:if test="starts-with($srcRngFile, $pathPrefix)">
-                <xsl:value-of select="concat('./', substring-after($srcRngFile, $pathPrefix))"/>
-            </xsl:if>
-        </xsl:for-each>
     </xsl:template>
 
     <xsl:template match="Loc">
