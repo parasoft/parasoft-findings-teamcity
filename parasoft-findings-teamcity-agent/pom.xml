@@ -9,7 +9,7 @@
   <artifactId>parasoft-findings-teamcity-agent</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <xtest.version>10.6.1.20221021</xtest.version>
+    <xtest.version>10.6.2.20230410</xtest.version>
   </properties>
   <dependencies>
 
