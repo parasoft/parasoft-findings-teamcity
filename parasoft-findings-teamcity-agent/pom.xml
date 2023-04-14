@@ -237,11 +237,6 @@
       <artifactId>com.parasoft.xtest.share.api</artifactId>
       <version>${xtest.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.parasoft.xtest.common</groupId>
-      <artifactId>com.parasoft.xtest.share</artifactId>
-      <version>${xtest.version}</version>
-    </dependency>
     <!-- these are needed only in runtime -->
     <dependency>
       <groupId>com.parasoft.xtest.common</groupId>
