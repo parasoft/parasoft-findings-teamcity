@@ -9,7 +9,7 @@
   <artifactId>parasoft-findings-teamcity-agent</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <xtest.version>10.6.1.20221021</xtest.version>
+    <xtest.version>10.6.2.20230410</xtest.version>
   </properties>
   <dependencies>
 
@@ -235,11 +235,6 @@
     <dependency>
       <groupId>com.parasoft.xtest.common</groupId>
       <artifactId>com.parasoft.xtest.share.api</artifactId>
-      <version>${xtest.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.parasoft.xtest.common</groupId>
-      <artifactId>com.parasoft.xtest.share</artifactId>
       <version>${xtest.version}</version>
     </dependency>
     <!-- these are needed only in runtime -->
