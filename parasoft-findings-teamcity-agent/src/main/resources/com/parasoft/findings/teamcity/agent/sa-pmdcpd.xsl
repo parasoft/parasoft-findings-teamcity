@@ -6,10 +6,8 @@
     <!-- For cppTest professional report, "prjModule" attribute is not present. -->
     <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
 
-    <!-- Handle file location for C/C++Test pro report -->
-    <!-- Not suitable for all kinds of project reports.
-               Incorrect `loc` value may happen in `Res` node under `TestedFilesDetails` node.
-               This is the limitation of C/C++Test pro report. -->
+    <!-- This map removes the <Project> and first <Res> path segments from the file path in the @loc attribute of the C/C++Test Professional report,
+        but it requires consistency with the <TestedFilesDetails> structure. -->
     <xsl:variable name="locationMap">
         <xsl:if test="$isCPPProReport">
             <map>
