@@ -19,6 +19,12 @@
       <outputDirectory>/</outputDirectory>
     </file>
   </files>
+  <fileSets>
+    <fileSet>
+      <directory>../licenses</directory>
+      <outputDirectory>/licenses</outputDirectory>
+    </fileSet>
+  </fileSets>
   <moduleSets>
     <moduleSet>
       <useAllReactorProjects>true</useAllReactorProjects>
