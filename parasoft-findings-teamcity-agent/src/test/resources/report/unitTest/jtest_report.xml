@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ResultsSession buildId="PDA-2023-02-01" climode="true" execEnv="win32_x86_64" hasViols="true" id="1676382816559" lang="en_US" machine="DESKTOP-DA1F8Q7" prjModule="com.parasoft.demoapp:parasoft-demo-app" project="PDA" scBranch="main" tag="Unit Tests-com.parasoft.demoapp:parasoft-demo-app-main-win32_x86_64" time="2023-02-01T03:28:43+08:00" toolDispName="Jtest" toolId="jtest" toolName="DTP Engine for Java" toolVer="2022.1.0" user="modtest">
+   <TestConfig machine="DESKTOP-DA1F8Q7" name="Unit Tests" pseudoUrl="builtin://Unit Tests" user="modtest" />
+   <Authors>
+      <Author id="dev1" name="foo" />
+   </Authors>
+   <Analyzers>
+      <Analyzer id="com.parasoft.jtest.coverage" name="Parasoft Coverage Analyzer" ver="10.6.0.20220509" />
+      <Analyzer id="com.parasoft.jtest.unittests.analyzers.UTDataAnalyzer" name="Parasoft JUnit Analyzer" ver="10.6.0.20220509" />
+   </Analyzers>
+   <VersionInfos>
+      <StorageInfo ownerId="" resultId="ISetupResult" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricsViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IExecutionViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IDupCodeViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IFlowAnalysisViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IFunctionalViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IChangeImpactViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="ICodingStandardsViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IUnitTestViolation" ver="1" ver10x="1" />
+   </VersionInfos>
+   <Goals tsks="3">
+      
+      <History>
+         <Graph id="gls">
+            <Categories>
+               <Category color="red" name="Total" pos="0" />
+            </Categories>
+            <Total secSer="1" title="" xTitle="Date" yTitle="Tasks" yTitle2="Total Tasks">
+               <X>01-02-23,01-03-23,01-04-23,01-05-23,01-06-23,01-07-23,01-08-23,01-09-23,01-10-23,01-11-23,01-12-23,01-13-23,01-14-23,01-15-23,01-16-23,01-17-23,01-18-23,01-19-23,01-20-23,01-21-23,01-22-23,01-23-23,01-24-23,01-25-23,01-26-23,01-27-23,01-28-23,01-29-23,01-30-23,01-31-23,02-01-23,</X>
+               <Y>0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,</Y>
+               <Delta>3,</Delta>
+            </Total>
+         </Graph>
+      </History>
+   
+   </Goals>
+   <Scope>
+      <Repositories>
+         <Rep repRef="1" type="git" url="https://github.com/parasoft/parasoft-demo-app.git" />
+      </Repositories>
+      <Locations>
+         <Loc branch="main" hash="1269710505" locRef="1" projId="com.parasoft.demoapp:parasoft-demo-app" projPath="/com.parasoft.demoapp:parasoft-demo-app" project="com.parasoft.demoapp:parasoft-demo-app" repRef="1" resProjPath="src/main/resources/application.properties" rev="5b95bfb881b27332305c7cd5d0abf32e55a75fa0" scPath="src/main/resources/application.properties" totLns="71" uri="file://DESKTOP-DA1F8Q7/C:/jenkins/workspace/pda.jtest.test/github-pda/src/main/resources/application.properties" />
+         <Loc branch="main" hash="-828135188" locRef="2" projId="com.parasoft.demoapp:parasoft-demo-app" projPath="/com.parasoft.demoapp:parasoft-demo-app" project="com.parasoft.demoapp:parasoft-demo-app" repRef="1" resProjPath="src/main/resources/i18n/messages.properties" rev="d91d42d6dfce08034a15a32a1d9f5335606f8aaa" scPath="src/main/resources/i18n/messages.properties" totLns="25" uri="file://DESKTOP-DA1F8Q7/C:/jenkins/workspace/pda.jtest.test/github-pda/src/main/resources/i18n/messages.properties" />
+      </Locations>
+   </Scope>
+   
+  <SetupProblems />
+
+   <Exec ownerId="com.parasoft.xtest.checkers.api.execution" time="0:00:00">
+      
+      <AssocUrls>
+         <Tag disp="Requirement" name="req" />
+         <Tag disp="Feature request" name="fr" />
+         <Tag disp="Problem report" name="pr" />
+         <Tag disp="Task" name="task" />
+         <Tag disp="Asset" name="asset" />
+         <Tag disp="Test" name="test" />
+      </AssocUrls>
+   
+      
+      <History>
+         <Graph id="tsks">
+            <Categories>
+               <Category authPos="0" color="gray" name="Unit Test Problems" pos="0" />
+               <Category authPos="1" color="green" name="Exceptions" pos="1" />
+               <Category authPos="2" color="red" name="Assertion Failures" pos="2" />
+            </Categories>
+            <Total secSer="1" title="" xTitle="Date" yTitle="Tasks" yTitle2="Assertion Failures">
+               <X>01-02-23,01-03-23,01-04-23,01-05-23,01-06-23,01-07-23,01-08-23,01-09-23,01-10-23,01-11-23,01-12-23,01-13-23,01-14-23,01-15-23,01-16-23,01-17-23,01-18-23,01-19-23,01-20-23,01-21-23,01-22-23,01-23-23,01-24-23,01-25-23,01-26-23,01-27-23,01-28-23,01-29-23,01-30-23,01-31-23,02-01-23,</X>
+               <Y>0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,</Y>
+               <Delta>3,0,0,</Delta>
+            </Total>
+            <Authors secSer="1" title="" xTitle="Date" yTitle="Tasks" yTitle2="Assertion Failures">
+               <Author name="foo">
+                  <X>01-02-23,01-03-23,01-04-23,01-05-23,01-06-23,01-07-23,01-08-23,01-09-23,01-10-23,01-11-23,01-12-23,01-13-23,01-14-23,01-15-23,01-16-23,01-17-23,01-18-23,01-19-23,01-20-23,01-21-23,01-22-23,01-23-23,01-24-23,01-25-23,01-26-23,01-27-23,01-28-23,01-29-23,01-30-23,01-31-23,02-01-23,</X>
+                  <Y>0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,</Y>
+                  <Delta>0,0,0,</Delta>
+               </Author>
+            </Authors>
+         </Graph>
+         <Graph id="tc">
+            <Categories>
+               <Category color="gray" name="Total" pos="0" />
+               <Category color="green" name="Passed" pos="1" />
+               <Category color="red" name="Failed" pos="2" />
+               <Category color="yellow" name="Incomplete" pos="3" />
+            </Categories>
+            <Total secSer="2" title="" xTitle="Date" yTitle="Total / Passed" yTitle2="Failed / Incomplete">
+               <X>01-02-23,01-03-23,01-04-23,01-05-23,01-06-23,01-07-23,01-08-23,01-09-23,01-10-23,01-11-23,01-12-23,01-13-23,01-14-23,01-15-23,01-16-23,01-17-23,01-18-23,01-19-23,01-20-23,01-21-23,01-22-23,01-23-23,01-24-23,01-25-23,01-26-23,01-27-23,01-28-23,01-29-23,01-30-23,01-31-23,02-01-23,</X>
+               <Y>743,743,743,743,743,743,743,756,756,771,771,771,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,743,743,743,743,741,743,743,756,756,771,771,771,772,770,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,772,769,0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,</Y>
+               <Delta>0,-3,1,2,</Delta>
+            </Total>
+         </Graph>
+      </History>
+   
+      <Categories>
+         <CategoryGroup authTot="0;0;0;0;1;2;0;0;0;" authUrg="0;0;0;0;1;2;0;0;0;" desc="This represents the findings arising from tests that have already been reviewed. This includes exceptions that have been marked as expected, assertion failures from previously reviewed tests, and any other kind of unexpected behavior that needs to be looked at (such as timeouts)." id="GROUP.UTEST.PROBL" label="Fix Unit Test Problems" name="Unit Test Problems" total="3">
+            <Category authTot="0;0;0;0;0;2;0;0;0;" authUrg="0;0;0;0;0;2;0;0;0;" id="EXC" name="Runtime Exceptions" short="exception" total="2">
+               <Type authTot="0;0;0;0;0;2;0;0;0;" authUrg="0;0;0;0;0;2;0;0;0;" name="org.springframework.kafka.KafkaException" total="2" />
+            </Category>
+            <Category authTot="0;0;0;0;1;0;0;0;0;" authUrg="0;0;0;0;1;0;0;0;0;" id="FAIL" name="Assertion Failures" short="failure" total="1">
+               <Type authTot="0;0;0;0;1;0;0;0;0;" authUrg="0;0;0;0;1;0;0;0;0;" name="Argument(s) are different! Wanted" total="1" />
+            </Category>
+            <Category authTot="0;0;0;0;0;0;0;0;0;" authUrg="0;0;0;0;0;0;0;0;0;" id="CON.VIOL" name="Contract Violations" short="contract violation" total="0" />
+            <Category authTot="0;0;0;0;0;0;0;0;0;" authUrg="0;0;0;0;0;0;0;0;0;" id="PROF.PROBL" name="Profiling Problems" short="profiling problem" total="0" />
+            <Category authTot="0;0;0;0;0;0;0;0;0;" authUrg="0;0;0;0;0;0;0;0;0;" id="EXEC.PROBL" name="Execution Problems" short="execution problem" total="0" />
+            <Category authTot="0;0;0;0;0;0;0;0;0;" authUrg="0;0;0;0;0;0;0;0;0;" id="TEST.PROBL" name="Test Problems" short="test problem" total="0" />
+         </CategoryGroup>
+      </Categories>
+      <Projects>
+         <Project err="2" fail="1" id="com.parasoft.demoapp:parasoft-demo-app" name="com.parasoft.demoapp:parasoft-demo-app" pass="769" total="772">
+            <CategoryGroupStats id="GROUP.UTEST.PROBL" total="3" />
+            <CategoryGroupStats id="GROUP.UNVER.EXC" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.FAIL" total="0" />
+         </Project>
+      </Projects>
+      
+  <APICoverage />
+
+      
+  <TrafficData />
+      
+  <EnvData />
+      <FuncAPISecurity pentest="false">
+         
+  <Categories />
+         
+  <Attacks />
+      </FuncAPISecurity>
+      
+  <ExecViols>
+    <UnitViol loc="/com.parasoft.demoapp:parasoft-demo-app/src/main/java/com/parasoft/demoapp/service/OrderMQService.java" ln="70" rev="5b2ec4b6170e0e288d416bcd33b5fe51ce0095e4" sev="1" auth="foo" locRef="236" lnHash="-1029930802" revComm="" analyzer="com.parasoft.jtest.unittests.analyzers.UTDataAnalyzer" revTime="0" cat="EXC" testId="com.parasoft.demoapp.service.OrderMQServiceTest|+|com.parasoft.demoapp:parasoft-demo-app#OrderMQServiceTest.java#com.parasoft.demoapp.service.OrderMQServiceTest#testSendToInventoryRequestDestination_without_info_kafka" urgent="true" goals="1,">
+      <Thr>
+        <ThrPart type="org.springframework.kafka.KafkaException" msg="org.springframework.kafka.KafkaException: Can not send message to Kafka broker.; nested exception is java.lang.NullPointerException">
+          <PathElem loc="/com.parasoft.demoapp:parasoft-demo-app/src/main/java/com/parasoft/demoapp/service/OrderMQService.java" locRef="1" lnHash="-1029930802" ln="70" desc="com.parasoft.demoapp.service.OrderMQService.sendToInventoryRequestDestination(OrderMQService.java:70)" />
+          <PathElem loc="/com.parasoft.demoapp:parasoft-demo-app/src/main/java/com/parasoft/demoapp/service/OrderMQService.java" locRef="1" lnHash="1791496634" ln="54" desc="com.parasoft.demoapp.service.OrderMQService.sendToInventoryRequestDestination(OrderMQService.java:54)" />
+          <PathElem loc="/com.parasoft.demoapp:parasoft-demo-app/src/main/java/com/parasoft/demoapp/service/OrderMQService.java" locRef="1" lnHash="-2136874497" ln="50" desc="com.parasoft.demoapp.service.OrderMQService.sendToInventoryRequestDestination(OrderMQService.java:50)" />
+          <PathElem loc="/com.parasoft.demoapp:parasoft-demo-app/src/test/java/com/parasoft/demoapp/service/OrderMQServiceTest.java" locRef="2" lnHash="1344865454" ln="139" desc="com.parasoft.demoapp.service.OrderMQServiceTest.testSendToInventoryRequestDestination_without_info_kafka(OrderMQServiceTest.java:139)" />
+        </ThrPart>
+      </Thr>
+    </UnitViol>
+    <UnitViol loc="/com.parasoft.demoapp:parasoft-demo-app/src/test/java/com/parasoft/demoapp/service/ItemInventoryMQServiceTest.java" ln="95" rev="849fca155b23a3f11f4eaa21a16b01aa74d0771a" sev="1" auth="foo" locRef="261" lnHash="-2070097441" revComm="" analyzer="com.parasoft.jtest.unittests.analyzers.UTDataAnalyzer" revTime="0" cat="FAIL" testId="com.parasoft.demoapp.service.ItemInventoryMQServiceTest|+|com.parasoft.demoapp:parasoft-demo-app#ItemInventoryMQServiceTest.java#com.parasoft.demoapp.service.ItemInventoryMQServiceTest#testSendToInventoryResponseDestination_kafka" urgent="true" goals="1,">
+      <Thr>
+        <ThrPart type="Argument(s) are different! Wanted" msg="Argument(s) are different! Wanted:operationResultKafkaTemplate.send(    &lt;any java.lang.String>,    &lt;any java.lang.String>,    &lt;any com.parasoft.demoapp.dto.InventoryOperationResultMessageDTO>);-> at com.parasoft.demoapp.service.ItemInventoryMQServiceTest.testSendToInventoryResponseDestination_kafka(ItemInventoryMQServiceTest.java:95)Actual invocations have different arguments:operationResultKafkaTemplate.send(    &quot;inventory.response&quot;,    0,    &quot;23-456-002&quot;,    InventoryOperationResultMessageDTO(operation=DECREASE, orderNumber=23-456-002, status=SUCCESS, info=Order 23-456-001 is submitted));-> at com.parasoft.demoapp.service.ItemInventoryMQService.sendToInventoryResponseDestination(ItemInventoryMQService.java:45)">
+          <PathElem loc="/com.parasoft.demoapp:parasoft-demo-app/src/test/java/com/parasoft/demoapp/service/ItemInventoryMQServiceTest.java" locRef="261" lnHash="-2070097441" ln="95" desc="com.parasoft.demoapp.service.ItemInventoryMQServiceTest.testSendToInventoryResponseDestination_kafka(ItemInventoryMQServiceTest.java:95)" />
+          <PathElem desc="org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)" />
+          <PathElem desc="org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)" />
+          <PathElem desc="org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)" />
+          <PathElem desc="org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)" />
+          <PathElem desc="org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)" />
+          <PathElem desc="org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)" />
+        </ThrPart>
+      </Thr>
+    </UnitViol>
+  </ExecViols>
+
+      
+   <ExecutedTestsDetails type="UT">
+      <Total fail="1" total="772" err="2" pass="769" name="Passed / Total" time="0:01:23.898" authErr="0;0;0;0;0;2;0;0;0;" authFail="0;0;0;0;1;0;0;0;0;">
+         <Project fail="1" total="772" err="2" pass="769" name="com.parasoft.demoapp:parasoft-demo-app" time="0:01:23.898" authErr="0;0;0;0;0;2;0;0;0;" id="com.parasoft.demoapp:parasoft-demo-app" authFail="0;0;0;0;1;0;0;0;0;">
+            <TestSuite locRef="1" root="true" name="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest" id="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest" total="6" pass="6" time="0:00:00.020" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;">
+               <Test auth="foo" locRef="253" name="testIsIndustryImplemented" startTime="1675192641023" id="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest|+|com.parasoft.demoapp:parasoft-demo-app#ImplementedIndustriesParameterizedTest.java#com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest#testIsIndustryImplemented" startPos="2" startLn="29" endLn="35" endPos="2" status="pass" total="6" pass="6" time="0:00:00.020" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;">
+                  <TestCase auth="foo" name="testIsIndustryImplemented(DEFENSE, true) [0]" startTime="1675192641023" testId="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest|+|com.parasoft.demoapp:parasoft-demo-app#ImplementedIndustriesParameterizedTest.java#com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest#testIsIndustryImplemented" id="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest|+|com.parasoft.demoapp:parasoft-demo-app#ImplementedIndustriesParameterizedTest.java#com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest#testIsIndustryImplemented(DEFENSE, true) [0]" status="pass" total="1" pass="1" time="0:00:00.004" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;" />
+                  <TestCase auth="foo" name="testIsIndustryImplemented(AEROSPACE, true) [1]" startTime="1675192641030" testId="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest|+|com.parasoft.demoapp:parasoft-demo-app#ImplementedIndustriesParameterizedTest.java#com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest#testIsIndustryImplemented" id="com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest|+|com.parasoft.demoapp:parasoft-demo-app#ImplementedIndustriesParameterizedTest.java#com.parasoft.demoapp.config.ImplementedIndustriesParameterizedTest#testIsIndustryImplemented(AEROSPACE, true) [1]" status="pass" total="1" pass="1" time="0:00:00.003" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;" />
+               </Test>
+            </TestSuite>
+            <TestSuite locRef="2" root="true" name="com.parasoft.demoapp.util.AuthenticationUtilTest" id="com.parasoft.demoapp.util.AuthenticationUtilTest" total="10" pass="10" time="0:00:00.028" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;">
+               <Test auth="foo" locRef="1" name="testgetUserRoleNameInAuthentication_nullAuthentication" startTime="1675193240624" id="com.parasoft.demoapp.util.AuthenticationUtilTest|+|com.parasoft.demoapp:parasoft-demo-app#AuthenticationUtilTest.java#com.parasoft.demoapp.util.AuthenticationUtilTest#testgetUserRoleNameInAuthentication_nullAuthentication" startPos="2" startLn="106" endLn="114" endPos="2" status="pass" total="1" pass="1" time="0:00:00.002" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;" />
+               <Test auth="foo" locRef="1" name="testGetUsernameInAuthentication_nullAuthentication" startTime="1675193240646" id="com.parasoft.demoapp.util.AuthenticationUtilTest|+|com.parasoft.demoapp:parasoft-demo-app#AuthenticationUtilTest.java#com.parasoft.demoapp.util.AuthenticationUtilTest#testGetUsernameInAuthentication_nullAuthentication" startPos="2" startLn="179" endLn="189" endPos="2" status="pass" total="1" pass="1" time="0:00:00.002" authErr="0;0;0;0;0;0;0;0;0;" authFail="0;0;0;0;0;0;0;0;0;" />
+            </TestSuite>
+         </Project>
+      </Total>
+   </ExecutedTestsDetails>
+
+      
+  <FuncTestDetails />
+      <Coverage>
+         <Types>
+            <CvgType cvgDecor="Marker" dispCvg="executable lines" dispId="Line" dispName="Line Coverage" dispNoCvg="no executable lines" id="LC" />
+         </Types>
+         <CvgStats>
+            <CvgInfo elem="Total" exp="1" num="4422" total="4891" val="90">
+               <CvgInfo elem="com.parasoft.demoapp:parasoft-demo-app" exp="1" num="4422" total="4891" val="90">
+                  <CvgInfo elem="src/main/java/com/parasoft/demoapp" exp="1" num="4422" total="4891" val="90">
+                     <CvgInfo elem="config" exp="1" num="668" total="734" val="91">
+                        <CvgInfo elem="activemq" exp="1" num="111" total="126" val="88">
+                           <CvgInfo elem="ActiveMQConfig.java" num="37" total="41" val="90">
+                              <CvgInfo elem="ActiveMQConfig" num="37" total="41" val="90">
+                                 <CvgInfo elem="ActiveMQConfig()" num="1" total="1" val="100" />
+                                 <CvgInfo elem="brokerService()" num="13" total="13" val="100" />
+                                 <CvgInfo elem="class initialization()" num="4" total="4" val="100" />
+                              </CvgInfo>
+                           </CvgInfo>
+                        </CvgInfo>
+                     </CvgInfo>
+                     <CvgInfo elem="controller" exp="1" num="385" total="404" val="95">
+                        <CvgInfo elem="ActiveMQController.java" num="1" total="5" val="20">
+                           <CvgInfo elem="ActiveMQController" num="1" total="5" val="20">
+                              <CvgInfo elem="ActiveMQController()" num="1" total="1" val="100" />
+                              <CvgInfo elem="getWSTransportConnectorUrl()" num="0" total="4" val="0" />
+                           </CvgInfo>
+                        </CvgInfo>
+                     </CvgInfo>
+                  </CvgInfo>
+               </CvgInfo>
+            </CvgInfo>
+         </CvgStats>
+         
+      <History>
+         <Graph id="cvg">
+            <Categories>
+               <Category color="red" name="Line" pos="0" />
+               <Category color="green" name="Decision" pos="1" />
+            </Categories>
+            <Total title="" xTitle="Date" yTitle="Percentage">
+               <X>01-02-23,01-03-23,01-04-23,01-05-23,01-06-23,01-07-23,01-08-23,01-09-23,01-10-23,01-11-23,01-12-23,01-13-23,01-14-23,01-15-23,01-16-23,01-17-23,01-18-23,01-19-23,01-20-23,01-21-23,01-22-23,01-23-23,01-24-23,01-25-23,01-26-23,01-27-23,01-28-23,01-29-23,01-30-23,01-31-23,02-01-23,</X>
+               <Y>91,91,91,70,74,75,75,89,89,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,</Y>
+               <Delta>0,0,</Delta>
+            </Total>
+         </Graph>
+      </History>
+   
+      </Coverage>
+   </Exec>
+   <Statistics>
+      
+   </Statistics>
+</ResultsSession>

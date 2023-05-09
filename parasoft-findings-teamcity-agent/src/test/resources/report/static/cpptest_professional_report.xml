@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='utf-8'?><ResultsSession buildId="Default Project-2023-03-31" date="03/31/23 16:46:33" machine="CD" project="Default Project" tag="cpptest_settings" time="2023-03-31T16:46:33+08:00" toolName="C++test" toolVer="2022.1.0.20220615B1827" user="fakeName">
+    <TestConfig machine="CD" name="cpptest_settings" pseudoUrl="c++test.file:/D:/Workspace/git/parasoft-findings-teamcity/servers/2020.1/buildAgent/work/test/conf/pro/cpptest_settings.properties" user="fakeName"/>
+    <Authors>
+        <Author id="dev1" name="fakeName"/>
+    </Authors>
+    <VersionInfos>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.execution" resultId="IExecutionViolation" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.execution" resultId="InsureViolation" ver="3"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.scope" resultId="IScopeProjectInfo" ver="3"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricsViolation" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IDupCodeViolation" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricEstimationInfo" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IFlowAnalysisViolation" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="ICodingStandardsViolation" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.generation" resultId="IGenerationInfo" ver="2"/>
+        <StorageInfo ownerId="com.parasoft.xtest.checkers.api.generation" resultId="IGenerationProjectInfo" ver="2"/>
+    </VersionInfos>
+
+
+    <Scope>
+        <ProjectInformations>
+            <ScopeProjectInfo fltFiles="6" fltLns="245" project="/test" totFiles="6" totLns="245"/>
+        </ProjectInformations>
+    </Scope>
+    <CodingStandards ownerId="com.parasoft.xtest.checkers.api.standards" time="0:00:51">
+        <Goal mode="1" name="Static"/>
+        <Metrics>
+            <Metric avg="27.152" disp="true" id="METRIC.HLENM" max="585" min="3" name="Halstead" noi="105" stddev="58.782">
+                <Info avg="27.152" disp="true" elem="Parasoft.Dottest.Examples.Bank" max="585" min="3" noi="105" stddev="58.782" />
+            </Metric>
+        </Metrics>
+        <Projects>
+            <Project bdCheckedFiles="4" bdTotalFiles="4" checkedFiles="6" checkedLns="245" name="test" qfixErrs="0" suppErrs="0" totErrs="3237" totFiles="6" totLns="245"/>
+        </Projects>
+        <Rules>
+            <RulesList>
+                <Rule cat="COMMENT" desc="Provide copyright information" id="COMMENT-02" sev="3">
+                    <Stats authTot="6;" authUrg="0;" total="6"/>
+                </Rule>
+                <Rule cat="CDD" desc="Avoid string literal duplication" id="CDD-DUPS" sev="3">
+                    <Stats authTot="1;" authUrg="0;" total="1"/>
+                </Rule>
+                <Rule cat="BD-TRS" desc="Variable should be used in context of single critical section" id="BD-TRS-DIFCS" sev="2">
+                    <Stats authTot="6;" authUrg="0;" total="6"/>
+                </Rule>
+                <Rule cat="GLOBAL" desc="A project shall not contain non-volatile POD variables having only one use" id="GLOBAL-ONEUSEVAR" sev="3">
+                    <Stats authTot="9;" authUrg="0;" total="9"/>
+                </Rule>
+            </RulesList>
+            <CategoriesList>
+                <Category desc="Global Static Analysis" name="GLOBAL" total="20">
+                    <Stats authTot="15;" authUrg="0;" total="15"/>
+                </Category>
+            </CategoriesList>
+            <SeverityList>
+                <Severity id="1">
+                    <Stats authTot="82;" authUrg="50;" total="82"/>
+                </Severity>
+                <Severity id="2">
+                    <Stats authTot="801;" authUrg="0;" total="801"/>
+                </Severity>
+                <Severity id="3">
+                    <Stats authTot="1467;" authUrg="0;" total="1467"/>
+                </Severity>
+                <Severity id="4">
+                    <Stats authTot="473;" authUrg="0;" total="473"/>
+                </Severity>
+                <Severity id="5">
+                    <Stats authTot="414;" authUrg="0;" total="414"/>
+                </Severity>
+            </SeverityList>
+        </Rules>
+
+        <StdViols>
+            <StdViol msg="Add comment containing the copyright information at the begin of file 'DeadLock.cpp'" ln="1" sev="3" auth="fakeName" rule="COMMENT-02" tool="c++test" cat="COMMENT" lang="cpp" locType="sr" config="1" hash="-1769734618" locStartln="1" locStartPos="0" locEndLn="1" locEndPos="1" locFile="/test/test/DeadLock.cpp"/>
+            <DupViol msg="Duplicated string: '&quot;%d&quot;'" ln="7" NvType="1" sev="3" auth="fakeName" rule="CDD-DUPS" tool="c++test" cat="CDD" lang="cpp" locType="sr" config="1" hash="1013754779" NvActs="3" locStartln="7" locStartPos="14" locEndLn="7" locEndPos="18" locFile="/test/test/MemoryLeak.cpp">
+                <ElDescList>
+                    <ElDesc srcRngStartln="7" srcRngStartPos="14" srcRngEndLn="7" srcRngEndPos="18" srcRngFile="/test/test/MemoryLeak.cpp" srcRnghash="1013754779" ln="7" ElType="" desc="[Line 7] Duplicated string in file 'MemoryLeak.cpp'" sourceRngHash="1051585">
+                        <Props/>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="10" srcRngStartPos="19" srcRngEndLn="10" srcRngEndPos="23" srcRngFile="/test/test/MemoryLeak.cpp" srcRnghash="1013754779" ln="10" ElType="" desc="[Line 10] Duplicated string in file 'MemoryLeak.cpp'" sourceRngHash="1051585">
+                        <Props/>
+                    </ElDesc>
+                </ElDescList>
+            </DupViol>
+            <StdViol msg="The 'velocityArray' variable has only one use" ln="86" sev="3" auth="fakeName" rule="GLOBAL-ONEUSEVAR" tool="c++test" cat="GLOBAL" lang="cpp" locType="sr" config="1" hash="-1769734618" locStartln="86" locStartPos="8" locEndLn="86" locEndPos="9" locFile="/test/test/DeadLock.cpp"/>
+            <FlowViol msg="&quot;velocityArray&quot; is used in two critical sections in context of single method, using one critical section will improve atomicity of operation" ln="94" ruleSAFMsg="Usage of &quot;velocityArray&quot; in second critical section" auth="fakeName" sev="2" rule="BD-TRS-DIFCS" ruleSCSCMsg="Usage of &quot;velocityArray&quot; in first critical section" pkg="Physics" tool="c++test" id="1066261748" lang="cpp" locType="sr" config="1" hash="-1769734618" locStartln="94" locStartPos="0" locEndLn="95" locEndPos="0" locFile="/test/test/DeadLock.cpp" FirstElSrcRngStartln="94" FirstElSrcRngStartPos="0" FirstElSrcRngEndLn="95" FirstElSrcRngEndPos="0" FirstElSrcRngFile="/test/test/DeadLock.cpp">
+                <Props>
+                    <Prop key="Tracked variables" val="Variable used in critical section"/>
+                </Props>
+                <ElDescList>
+                    <ElDesc srcRngStartln="90" srcRngStartPos="0" srcRngEndLn="91" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="90" ElType="." desc="while (!exitGame) {" rngLn="90">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Loop condition evaluation: !exitGame (assuming true)" kind="condEval"/>
+                            <Ann msg="Entering the loop" kind="condEval"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="91" srcRngStartPos="0" srcRngEndLn="92" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="91" ElType="." desc="for(int i = 0; i &lt; participantsCount; i++) {" rngLn="91">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Loop condition evaluation: (i &lt; participantsCount) (assuming true)" kind="condEval"/>
+                            <Ann msg="Entering the loop" kind="condEval"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="92" srcRngStartPos="0" srcRngEndLn="93" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="92" ElType="!" desc="LOCK_ACQUIRE(changePositionMutex);" rngLn="92">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Locking: &amp;changePositionMutex" kind="comment"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="93" srcRngStartPos="0" srcRngEndLn="94" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="93" ElType="." desc="Point&amp; position = participants[i]->getPosition();" rngLn="93">
+                        <ElDescList>
+                            <ElDesc srcRngStartln="10" srcRngStartPos="0" srcRngEndLn="11" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="10" ElType="." desc="Point&amp; getPosition() { return _position; }" rngLn="10">
+                                <Props/>
+                            </ElDesc>
+                        </ElDescList>
+                        <Props/>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="94" srcRngStartPos="0" srcRngEndLn="95" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="94" ElType=".C" desc="position.translate(*velocityArray[i]);" rngLn="94">
+                        <ElDescList>
+                            <ElDesc srcRngStartln="15" srcRngStartPos="0" srcRngEndLn="16" srcRngEndPos="0" srcRngFile="/test/test/Point.hpp" srcRnghash="1950870755" ln="15" ElType="." desc="_x += vector._x;" rngLn="15">
+                                <Props/>
+                            </ElDesc>
+                            <ElDesc srcRngStartln="16" srcRngStartPos="0" srcRngEndLn="17" srcRngEndPos="0" srcRngFile="/test/test/Point.hpp" srcRnghash="1950870755" ln="16" ElType="." desc="_y += vector._y;" rngLn="16">
+                                <Props/>
+                            </ElDesc>
+                        </ElDescList>
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Usage of &quot;velocityArray&quot; in first critical section" kind="cause"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="95" srcRngStartPos="0" srcRngEndLn="96" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="95" ElType="." desc="ring.contains(...)" rngLn="95">
+                        <ElDescList>
+                            <ElDesc srcRngStartln="29" srcRngStartPos="0" srcRngEndLn="30" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="29" ElType="." desc="getPosition()" rngLn="29">
+                                <ElDescList>
+                                    <ElDesc srcRngStartln="10" srcRngStartPos="0" srcRngEndLn="11" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="10" ElType="." desc="Point&amp; getPosition() { return _position; }" rngLn="10">
+                                        <Props/>
+                                    </ElDesc>
+                                </ElDescList>
+                                <Props/>
+                            </ElDesc>
+                            <ElDesc srcRngStartln="29" srcRngStartPos="0" srcRngEndLn="30" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="29" ElType="." desc="point.squareDistanceTo(...)" rngLn="29">
+                                <ElDescList>
+                                    <ElDesc srcRngStartln="21" srcRngStartPos="0" srcRngEndLn="22" srcRngEndPos="0" srcRngFile="/test/test/Point.hpp" srcRnghash="1950870755" ln="21" ElType="." desc="return ((_x - point._x) * (_x - point._x)) + ((_y - point._y) * (_y - point._y));" rngLn="21">
+                                        <Props/>
+                                    </ElDesc>
+                                </ElDescList>
+                                <Props/>
+                            </ElDesc>
+                            <ElDesc srcRngStartln="29" srcRngStartPos="0" srcRngEndLn="30" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="29" ElType="." desc="return point.squareDistanceTo(getPosition()) &lt;= (_radius * _radius);" rngLn="29">
+                                <Props/>
+                            </ElDesc>
+                        </ElDescList>
+                        <Props/>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="95" srcRngStartPos="0" srcRngEndLn="96" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="95" ElType="." desc="assertion(ring.contains(position), &quot;Participant is out of ring&quot;);" rngLn="95">
+                        <ElDescList>
+                            <ElDesc srcRngStartln="60" srcRngStartPos="0" srcRngEndLn="61" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="60" ElType="." desc="if (!condition) {" rngLn="60">
+                                <Props/>
+                                <Anns>
+                                    <Ann msg="Condition evaluation: !condition (assuming false)" kind="condEval"/>
+                                </Anns>
+                            </ElDesc>
+                        </ElDescList>
+                        <Props/>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="98" srcRngStartPos="0" srcRngEndLn="99" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="98" ElType="!" desc="LOCK_RELEASE(changePositionMutex);" rngLn="98">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Unlocking: &amp;changePositionMutex" kind="comment"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="91" srcRngStartPos="0" srcRngEndLn="92" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="91" ElType="." desc="for(int i = 0; i &lt; participantsCount; i++) {" rngLn="91">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Loop condition evaluation: (i &lt; participantsCount) (true)" kind="condEval"/>
+                            <Ann msg="Entering the loop" kind="condEval"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="92" srcRngStartPos="0" srcRngEndLn="93" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="92" ElType="!" desc="LOCK_ACQUIRE(changePositionMutex);" rngLn="92">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Locking: &amp;changePositionMutex" kind="comment"/>
+                        </Anns>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="93" srcRngStartPos="0" srcRngEndLn="94" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="93" ElType="." desc="Point&amp; position = participants[i]->getPosition();" rngLn="93">
+                        <ElDescList>
+                            <ElDesc srcRngStartln="10" srcRngStartPos="0" srcRngEndLn="11" srcRngEndPos="0" srcRngFile="/test/test/Shapes.hpp" srcRnghash="1537905639" ln="10" ElType="." desc="Point&amp; getPosition() { return _position; }" rngLn="10">
+                                <Props/>
+                            </ElDesc>
+                        </ElDescList>
+                        <Props/>
+                    </ElDesc>
+                    <ElDesc srcRngStartln="94" srcRngStartPos="0" srcRngEndLn="95" srcRngEndPos="0" srcRngFile="/test/test/DeadLock.cpp" srcRnghash="-1769734618" ln="94" ElType=".P" desc="position.translate(*velocityArray[i]);" rngLn="94">
+                        <Props/>
+                        <Anns>
+                            <Ann msg="Usage of &quot;velocityArray&quot; in second critical section" kind="point"/>
+                        </Anns>
+                    </ElDesc>
+                </ElDescList>
+            </FlowViol>
+            <MetViol msg="Implicit conversion from integral to floating type in comparison expression" ln="29" sev="2" auth="fakeName" rule="METRIC.HLENM" tool="c++test" cat="MISRA2008" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="43" locStartPos="0" locEndLn="44" locEndPos="0" locFile="/test/test/Shapes.hpp"/>
+        </StdViols>
+
+        <Supps/>
+
+        <TestedFilesDetails>
+            <Total name="Suppressed / Total" supp="0" total="3237">
+                <Project name="test" supp="0" total="3237">
+                    <Res name="test" supp="0" total="3237">
+                        <Res loc="/test/test/DivisionByZero.cpp" locType="sr" name="DivisionByZero.cpp" supp="0" total="109"/>
+                        <Res loc="/test/test/DeadLock.cpp" locType="sr" name="DeadLock.cpp" supp="0" total="1869"/>
+                        <Res loc="/test/test/Point.hpp" locType="sr" name="Point.hpp" supp="0" total="262"/>
+                        <Res loc="/test/test/MemoryLeak.cpp" locType="sr" name="MemoryLeak.cpp" supp="0" total="324"/>
+                        <Res loc="/test/test/NullPointer.cpp" locType="sr" name="NullPointer.cpp" supp="0" total="178"/>
+                        <Res loc="/test/test/Shapes.hpp" locType="sr" name="Shapes.hpp" supp="0" total="495"/>
+                    </Res>
+                </Project>
+            </Total>
+        </TestedFilesDetails>
+
+    </CodingStandards>
+    <Metrics ownerId="com.parasoft.xtest.checkers.api.standards" time="0:00:51">
+
+    </Metrics>
+    <AssocUrls/>
+</ResultsSession>
