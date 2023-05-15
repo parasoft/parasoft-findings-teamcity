@@ -446,4 +446,9 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
             return "WARNING";
         }
     }
+
+    // This function is only used for unit test
+    public int getInvalidReportCount() {
+        return _invalidReportCount;
+    }
 }
