@@ -6,25 +6,6 @@
     <!-- For cppTest professional report, "prjModule" attribute is not present. -->
     <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
 
-    <!-- This map removes the <Project> and first <Res> path segments from the file path in the @loc attribute of the C/C++Test Professional report,
-        but it requires consistency with the <TestedFilesDetails> structure. -->
-    <xsl:variable name="locationMap">
-        <xsl:if test="$isCPPProReport">
-            <map>
-                <xsl:for-each select="/ResultsSession/CodingStandards/TestedFilesDetails/Total//Res[@loc]">
-                        <entry>
-                            <xsl:attribute name="verboseLocation">
-                                <xsl:value-of select="@loc"/>
-                            </xsl:attribute>
-                            <xsl:attribute name="relativeLocation">
-                                <xsl:value-of select="substring-after(@loc, concat('/', ./ancestor::Project/@name, '/', substring-before(concat(./ancestor::Res[last()]/@name, '/'), '/')))"/>
-                            </xsl:attribute>
-                        </entry>
-                </xsl:for-each>
-            </map>
-        </xsl:if>
-    </xsl:variable>
-
     <xsl:template match="/" >
         <xsl:if test="$isStaticAnalysisResult">
             <xsl:element name="pmd-cpd">
@@ -70,9 +51,18 @@
                 <xsl:attribute name="path">
                     <xsl:choose>
                         <xsl:when test="$isCPPProReport">
-                            <xsl:variable name="verboseLocation" select="@srcRngFile"/>
-                            <xsl:variable name="relativeLocation" select="exsl:node-set($locationMap)/map/entry[@verboseLocation = $verboseLocation]/@relativeLocation"/>
-                            <xsl:value-of select="concat('.', $relativeLocation)" />
+                            <xsl:variable name="srcRngFile" select="@srcRngFile"/>
+                            <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc = $srcRngFile]"/>
+                            <!-- For cppTest professional report, use "fsPath" in "Loc" if you have location details.
+                                    Use "srcRngFile" in "ElDesc" if no "Loc"(location details). -->
+                            <xsl:choose>
+                                <xsl:when test="$locNode">
+                                    <xsl:value-of select="/ResultsSession/Locations/Loc/@fsPath"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="$srcRngFile"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
                         </xsl:when>
                         <xsl:when test="/ResultsSession/@toolId = 'dottest'">
                             <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
