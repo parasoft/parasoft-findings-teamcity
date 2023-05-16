@@ -57,7 +57,7 @@
                                     Use "srcRngFile" in "ElDesc" if no "Loc"(location details). -->
                             <xsl:choose>
                                 <xsl:when test="$locNode">
-                                    <xsl:value-of select="/ResultsSession/Locations/Loc/@fsPath"/>
+                                    <xsl:value-of select="/ResultsSession/Locations/Loc[@loc = $srcRngFile]/@fsPath"/>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="$srcRngFile"/>
