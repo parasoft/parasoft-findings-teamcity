@@ -40,39 +40,39 @@ public class ParasoftFindingsBuildProcessTest {
 
     @Test
     public void test_transformStaticTestReport_withLocalSettings() throws Throwable {
+        // Given
         params.put("settings.location", "settings/localSettings.properties");
         File localSettings = new File("src/test/resources/settings/localSettings.properties");
 
+        // When
         testTransformStaticTestReport();
 
+        // Then
         Mockito.verify(buildProgressLogger).message("File path for local settings is " + localSettings.getAbsolutePath());
     }
 
     @Test
     public void test_transformStaticTestReport_withEmptyLocalSettings() throws Throwable {
+        // Given
         params.put("settings.location", "settings/emptyLocalSettings.properties");
-        doNothing().when(buildProgressLogger).warning(Mockito.isA(String.class));
 
+        // When
         testTransformStaticTestReport();
 
+        // Then
         Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).warning(Mockito.isA(String.class));
         Mockito.verify(buildProgressLogger).warning("No properties loaded");
     }
 
-
     private void testTransformStaticTestReport() throws Throwable {
         File pmdReport = new File(reportDirPath + "/pmd-cpptest_professional_report.xml");
         File pmdCpdReport = new File(reportDirPath + "/pmdCpd-cpptest_professional_report.xml");
+        File testReport = new File(reportDirPath + "/cpptest_professional_report.xml");
+        String pmdReportRelativePath = checkoutDir.toURI().relativize(pmdReport.toURI()).getPath();
 
         try {
             // Given
-            File testReport = new File(reportDirPath + "/cpptest_professional_report.xml");
-            params.put("reports.location", "reports/cpptest_professional_report.xml");
-            String pmdReportRelativePath = checkoutDir.toURI().relativize(pmdReport.toURI()).getPath();
-            prepareDataForTestTransformation();
-
-            doNothing().when(buildProgressLogger).message(Mockito.isA(String.class));
-            doNothing().when(buildProgressLogger).logMessage(Mockito.isA(BuildMessage1.class));
+            setupMockedDataForTransformation("reports/cpptest_professional_report.xml");
 
             // When
             BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
@@ -96,8 +96,8 @@ public class ParasoftFindingsBuildProcessTest {
             Mockito.verify(buildProgressLogger).message("Transforming " + testReport.getAbsolutePath() + " with Parasoft Duplicates");
             Mockito.verify(buildProgressLogger).message("Generated report with transformation: " + pmdCpdReport.getAbsolutePath());
         } finally {
-            clearGeneratedTestFile(pmdReport);
-            clearGeneratedTestFile(pmdCpdReport);
+            deleteIfExists(pmdReport);
+            deleteIfExists(pmdCpdReport);
         }
     }
 
@@ -105,16 +105,12 @@ public class ParasoftFindingsBuildProcessTest {
     public void test_transformSOATestReport() throws Throwable {
         File junitReport = new File(reportDirPath + "/junit-SOAtest_report.xml");
         File pmdReport = new File( reportDirPath + "/pmd-SOAtest_report.xml");
+        File testReport = new File(reportDirPath + "/SOAtest_report.xml");
+        String pmdReportRelativePath = checkoutDir.toURI().relativize(pmdReport.toURI()).getPath();
 
-        // Given
         try {
-            File testReport = new File(reportDirPath + "/SOAtest_report.xml");
-            params.put("reports.location", "reports/SOAtest_report.xml");
-            String pmdReportRelativePath = checkoutDir.toURI().relativize(pmdReport.toURI()).getPath();
-            prepareDataForTestTransformation();
-
-            doNothing().when(buildProgressLogger).message(Mockito.isA(String.class));
-            doNothing().when(buildProgressLogger).logMessage(Mockito.isA(BuildMessage1.class));
+            // Given
+            setupMockedDataForTransformation("reports/SOAtest_report.xml");
 
             // When
             BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
@@ -135,24 +131,19 @@ public class ParasoftFindingsBuildProcessTest {
             Mockito.verify(buildProgressLogger).message("Importing data from '"+ pmdReportRelativePath + "' ("+ pmdReportSize +" KB) with 'message service' processor");
             Mockito.verify(buildProgressLogger).message("Transforming " + testReport.getAbsolutePath() + " with Parasoft SOAtest");
         } finally {
-            clearGeneratedTestFile(pmdReport);
-            clearGeneratedTestFile(junitReport);
+            deleteIfExists(pmdReport);
+            deleteIfExists(junitReport);
         }
     }
 
     @Test
     public void test_transformUnitTestReport() throws Throwable {
         File junitReport = new File(reportDirPath + "/junit-jtest_report.xml");
+        File testReport = new File(reportDirPath + "/jtest_report.xml");
 
-        // Given
         try {
-            params.put("reports.location", "reports/jtest_report.xml");
-            File testReport = new File(reportDirPath + "/jtest_report.xml");
-
-            prepareDataForTestTransformation();
-
-            doNothing().when(buildProgressLogger).message(Mockito.isA(String.class));
-            doNothing().when(buildProgressLogger).logMessage(Mockito.isA(BuildMessage1.class));
+            // Given
+            setupMockedDataForTransformation("reports/jtest_report.xml");
 
             // When
             BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
@@ -169,17 +160,14 @@ public class ParasoftFindingsBuildProcessTest {
             Mockito.verify(buildProgressLogger).message("Transforming " + testReport.getAbsolutePath() + " with Parasoft Analyzers");
             Mockito.verify(buildProgressLogger).message("Generated report with transformation: " + junitReport.getAbsolutePath());
         } finally {
-            clearGeneratedTestFile(junitReport);
+            deleteIfExists(junitReport);
         }
     }
 
     @Test
     public void test_transform_reportNotFound() throws Throwable {
         // Given
-        params.put("reports.location", "report.xml");
-        prepareDataForTestTransformation();
-
-        doNothing().when(buildProgressLogger).error(Mockito.isA(String.class));
+        setupMockedDataForTransformation("report.xml");
 
         // When
         BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
@@ -194,15 +182,10 @@ public class ParasoftFindingsBuildProcessTest {
     @Test
     public void test_transformFail_invalidContent() throws Throwable {
         // Given
-        params.put("reports.location", "reports/invalidReport.xml");
         File testReport = new File(reportDirPath + "/invalidReport.xml");
         File pmdReport = new File( reportDirPath + "/pmd-invalidReport.xml");
         File pmdCpdReport = new File(reportDirPath + "/pmdCpd-invalidReport.xml");
-        prepareDataForTestTransformation();
-
-        doNothing().when(buildProgressLogger).warning(Mockito.isA(String.class));
-        doNothing().when(buildProgressLogger).error(Mockito.isA(String.class));
-        doNothing().when(buildProgressLogger).buildFailureDescription(Mockito.isA(String.class));
+        setupMockedDataForTransformation("reports/invalidReport.xml");
 
         // When
         BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
@@ -223,13 +206,19 @@ public class ParasoftFindingsBuildProcessTest {
         Mockito.verify(buildProgressLogger).buildFailureDescription("Failed to parse XML report");
     }
 
-    private void prepareDataForTestTransformation() {
+    private void setupMockedDataForTransformation(String reportLocation) {
+        params.put("reports.location", reportLocation);
         doReturn(params).when(context).getRunnerParameters();
         doReturn(buildProgressLogger).when(build).getBuildLogger();
         doReturn(checkoutDir).when(build).getCheckoutDirectory();
+        doNothing().when(buildProgressLogger).message(Mockito.isA(String.class));
+        doNothing().when(buildProgressLogger).logMessage(Mockito.isA(BuildMessage1.class));
+        doNothing().when(buildProgressLogger).error(Mockito.isA(String.class));
+        doNothing().when(buildProgressLogger).warning(Mockito.isA(String.class));
+        doNothing().when(buildProgressLogger).buildFailureDescription(Mockito.isA(String.class));
     }
 
-    private void clearGeneratedTestFile(File file) {
+    private void deleteIfExists(File file) {
         if(file.exists()) {
             file.delete();
         }
