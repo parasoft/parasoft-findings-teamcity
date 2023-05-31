@@ -65,6 +65,7 @@
           <artifactId>teamcity-sdk-maven-plugin</artifactId>
           <version>0.4.2</version>
           <configuration>
+            <pluginPackageName>${project.artifactId}-${project.version}.zip</pluginPackageName>
             <!-- <teamcityDir>/path/to/tc/distro</teamcityDir> -->
           </configuration>
         </plugin>
