@@ -16,30 +16,36 @@
 
 package com.parasoft.findings.teamcity.agent;
 
-import com.parasoft.xtest.common.dtp.IDtpServiceRegistry;
-import com.parasoft.xtest.common.services.RawServiceContext;
-import com.parasoft.xtest.configuration.dtp.XRestRulesClient;
-import com.parasoft.xtest.configuration.rules.RuleDocumentationHelper;
-import com.parasoft.xtest.services.api.IParasoftServiceContext;
-import com.parasoft.xtest.services.api.ServiceUtil;
+import com.parasoft.findings.utils.doc.RuleDocumentationProvider;
+import com.parasoft.findings.utils.doc.remote.RulesRestClient.ClientStatus;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.parasoft.findings.teamcity.agent.LocalSettingsHelper.DTP_URL;
+
 public class RuleDocumentationUrlProvider {
     private static AgentRunningBuild _build;
     private Map<String, String> _ruleDocsUrls;
-    private final TeamCityRuleDocumentationProvider _docProvider;
+    private final RuleDocumentationProvider _docProvider;
 
-    public RuleDocumentationUrlProvider(AgentRunningBuild build, Properties settings) {
+    public RuleDocumentationUrlProvider(AgentRunningBuild build, Properties settings ) {
         _build = build;
         _ruleDocsUrls = new HashMap<>();
-        _docProvider = new TeamCityRuleDocumentationProvider(settings);
+        _docProvider = new RuleDocumentationProvider(settings);
+        if (_docProvider.getDtpDocServiceStatus() == ClientStatus.NOT_AVAILABLE) {
+            _build.getBuildLogger().error("DTP server is not available: " + settings.getProperty(DTP_URL));
+        } else if (_docProvider.getDtpDocServiceStatus() == ClientStatus.NOT_SUPPORTED_VERSION) {
+            _build.getBuildLogger().error("Unable to retrieve the documentation for the rule from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.");
+        }
     }
 
     public String getRuleDocUrl(String analyzer, String ruleId) {
+        if (_docProvider.getDtpDocServiceStatus() != ClientStatus.AVAILABLE) {
+            return null;
+        }
         String key = analyzer+"/"+ruleId;
         if (_ruleDocsUrls.containsKey(key)) {
             return _ruleDocsUrls.get(key);
@@ -47,38 +53,6 @@ public class RuleDocumentationUrlProvider {
             String ruleDocLocation = _docProvider.getRuleDocLocation(analyzer, ruleId);
             _ruleDocsUrls.put(key, ruleDocLocation);
             return ruleDocLocation;
-        }
-    }
-
-    private static class TeamCityRuleDocumentationProvider {
-        private final IParasoftServiceContext _context;
-
-        private final XRestRulesClient _client;
-
-        public TeamCityRuleDocumentationProvider(Properties settings) {
-            _context = new RawServiceContext(settings);
-            _client = getRuleClient(_context);
-        }
-
-        /**
-         * @return url of rule docs or null
-         */
-        public String getRuleDocLocation(String analyzer, String ruleId) {
-            RuleDocumentationHelper ruleDocHelper = new RuleDocumentationHelper(ruleId, analyzer, _client, _context);
-            return ruleDocHelper.getNetworkRuleDocLocation();
-        }
-
-        private XRestRulesClient getRuleClient(IParasoftServiceContext context) {
-            IDtpServiceRegistry registry = ServiceUtil.getService(IDtpServiceRegistry.class, context);
-            if (registry == null) {
-                return null;
-            }
-
-            XRestRulesClient rulesClient = XRestRulesClient.create(registry, context);
-            if (rulesClient == null) {
-                _build.getBuildLogger().error("Rules service client could not be created");
-            }
-            return rulesClient;
         }
     }
 }

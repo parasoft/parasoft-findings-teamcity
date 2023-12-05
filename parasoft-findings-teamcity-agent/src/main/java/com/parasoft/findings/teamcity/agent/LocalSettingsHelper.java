@@ -35,6 +35,7 @@ public class LocalSettingsHelper {
     private static final String validUrlPattern = "(\\w+)://([\\w.]+)/(\\S*)";
     private static final Logger LOG = Logger.getLogger
             (LocalSettingsHelper.class.getName()); // logs into ./buildAgent/logs/wrapper.log
+    public static String DTP_URL = "dtp.url";
 
     private AgentRunningBuild _build;
 
