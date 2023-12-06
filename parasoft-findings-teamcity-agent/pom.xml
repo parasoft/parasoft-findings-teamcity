@@ -28,7 +28,7 @@
     <dependency>
       <groupId>com.parasoft</groupId>
       <artifactId>parasoft-findings-utils</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
 <!--  Add this dependency to solve jackson version conflict. This dependency will be remove with xtest dependency  -->
     <dependency>

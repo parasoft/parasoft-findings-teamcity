@@ -17,7 +17,7 @@
 package com.parasoft.findings.teamcity.agent;
 
 import com.parasoft.findings.utils.doc.RuleDocumentationProvider;
-import com.parasoft.findings.utils.doc.remote.RulesRestClient.ClientStatus;
+import com.parasoft.findings.utils.doc.RuleDocumentationProvider.ClientStatus;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 
 import java.util.HashMap;
