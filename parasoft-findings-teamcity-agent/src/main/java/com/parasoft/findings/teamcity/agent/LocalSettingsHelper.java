@@ -16,7 +16,7 @@
 
 package com.parasoft.findings.teamcity.agent;
 
-import com.parasoft.xtest.common.text.UString;
+import com.parasoft.findings.utils.common.util.StringUtil;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 import org.apache.commons.io.IOUtils;
 
@@ -44,7 +44,7 @@ public class LocalSettingsHelper {
     }
 
     public Properties loadLocalSettings(File checkoutDir, String settingsPath) {
-        if (UString.isEmpty(settingsPath)) {
+        if (StringUtil.isEmpty(settingsPath)) {
             return new Properties();
         }
         File localSettingsFile = new File(settingsPath);

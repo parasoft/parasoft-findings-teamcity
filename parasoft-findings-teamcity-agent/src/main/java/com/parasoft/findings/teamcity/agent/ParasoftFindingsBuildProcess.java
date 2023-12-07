@@ -20,7 +20,6 @@ import com.parasoft.findings.teamcity.common.ParasoftFindingsProperties;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor.ReportParserType;
 import com.parasoft.findings.teamcity.common.ReportParserTypes;
-import com.parasoft.xtest.common.services.DefaultServicesProvider;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 import jetbrains.buildServer.agent.BuildFinishedStatus;
@@ -61,7 +60,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
+public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String JUNIT_TESTSUITE_TAG_NAME = "testsuite";
     private static final String JUNIT_TESTSUITES_TAG_NAME = "testsuites";
     private static final String PMD_TAG_NAME = "pmd";
@@ -162,7 +161,6 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
         Properties properties = _localSettingsHelper.loadLocalSettings(checkoutDir, settingsPath);
         if (!properties.isEmpty()) {
             if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty(LocalSettingsHelper.DTP_URL))) {
-                ParasoftServicesProvider.init();
                 _ruleDocumentationUrlProvider = new RuleDocumentationUrlProvider(_build, properties);
             }
         }
