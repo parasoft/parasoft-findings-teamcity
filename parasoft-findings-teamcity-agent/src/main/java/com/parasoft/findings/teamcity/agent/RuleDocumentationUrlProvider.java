@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.parasoft.findings.teamcity.agent.LocalSettingsHelper.DTP_URL;
-
 public class RuleDocumentationUrlProvider {
     private static AgentRunningBuild _build;
     private Map<String, String> _ruleDocsUrls;
@@ -36,9 +34,9 @@ public class RuleDocumentationUrlProvider {
         _ruleDocsUrls = new HashMap<>();
         _docProvider = new RuleDocumentationProvider(settings);
         if (_docProvider.getDtpDocServiceStatus() == ClientStatus.NOT_AVAILABLE) {
-            _build.getBuildLogger().error("DTP server is not available: " + settings.getProperty(DTP_URL));
+            _build.getBuildLogger().error(ClientStatus.NOT_AVAILABLE.toString() + ": " + settings.getProperty(LocalSettingsHelper.DTP_URL));
         } else if (_docProvider.getDtpDocServiceStatus() == ClientStatus.NOT_SUPPORTED_VERSION) {
-            _build.getBuildLogger().error("Unable to retrieve the documentation for the rule from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.");
+            _build.getBuildLogger().error(ClientStatus.NOT_SUPPORTED_VERSION.toString());
         }
     }
 

@@ -61,8 +61,6 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.parasoft.findings.teamcity.agent.LocalSettingsHelper.DTP_URL;
-
 public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implements BuildProcess, Callable<BuildFinishedStatus>, ParasoftFindingsProperties {
     private static final String JUNIT_TESTSUITE_TAG_NAME = "testsuite";
     private static final String JUNIT_TESTSUITES_TAG_NAME = "testsuites";
@@ -163,7 +161,7 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
         String settingsPath = params.get(SETTINGS_LOCATION);
         Properties properties = _localSettingsHelper.loadLocalSettings(checkoutDir, settingsPath);
         if (!properties.isEmpty()) {
-            if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty(DTP_URL))) {
+            if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty(LocalSettingsHelper.DTP_URL))) {
                 ParasoftServicesProvider.init();
                 _ruleDocumentationUrlProvider = new RuleDocumentationUrlProvider(_build, properties);
             }
