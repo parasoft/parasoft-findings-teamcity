@@ -28,9 +28,14 @@
     <dependency>
       <groupId>com.parasoft</groupId>
       <artifactId>parasoft-findings-utils</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
-
+<!--  Add this dependency to solve jackson version conflict. This dependency will be remove with xtest dependency  -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.15.1</version>
+    </dependency>
     <dependency>
       <groupId>org.jetbrains.teamcity</groupId>
       <artifactId>agent-api</artifactId>

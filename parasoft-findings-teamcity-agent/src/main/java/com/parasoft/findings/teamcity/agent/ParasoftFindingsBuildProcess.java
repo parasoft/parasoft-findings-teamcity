@@ -161,7 +161,7 @@ public class ParasoftFindingsBuildProcess extends DefaultServicesProvider implem
         String settingsPath = params.get(SETTINGS_LOCATION);
         Properties properties = _localSettingsHelper.loadLocalSettings(checkoutDir, settingsPath);
         if (!properties.isEmpty()) {
-            if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty("dtp.url"))) {
+            if (_localSettingsHelper.isDtpUrlValidForTeamCity(properties.getProperty(LocalSettingsHelper.DTP_URL))) {
                 ParasoftServicesProvider.init();
                 _ruleDocumentationUrlProvider = new RuleDocumentationUrlProvider(_build, properties);
             }
