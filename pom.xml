@@ -20,13 +20,8 @@
   </scm>
   <properties>
     <teamcity-version>2020.1</teamcity-version>
-    <parasoft.repository.url>file:///${basedir}/repository</parasoft.repository.url>
   </properties>
   <repositories>
-    <repository>
-      <id>parasoft</id>
-      <url>${parasoft.repository.url}</url>
-    </repository>
     <repository>
       <id>JetBrains</id>
       <url>https://download.jetbrains.com/teamcity-repository</url>

@@ -16,7 +16,7 @@
 
 package com.parasoft.findings.teamcity.agent;
 
-import com.parasoft.xtest.common.text.UString;
+import com.parasoft.findings.utils.common.util.StringUtil;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 import org.apache.commons.io.IOUtils;
 
@@ -35,6 +35,7 @@ public class LocalSettingsHelper {
     private static final String validUrlPattern = "(\\w+)://([\\w.]+)/(\\S*)";
     private static final Logger LOG = Logger.getLogger
             (LocalSettingsHelper.class.getName()); // logs into ./buildAgent/logs/wrapper.log
+    public static String DTP_URL = "dtp.url";
 
     private AgentRunningBuild _build;
 
@@ -43,7 +44,7 @@ public class LocalSettingsHelper {
     }
 
     public Properties loadLocalSettings(File checkoutDir, String settingsPath) {
-        if (UString.isEmpty(settingsPath)) {
+        if (StringUtil.isEmpty(settingsPath)) {
             return new Properties();
         }
         File localSettingsFile = new File(settingsPath);
