@@ -1,9 +1,6 @@
 package com.parasoft.findings.teamcity.agent;
 
-import jetbrains.buildServer.agent.AgentRunningBuild;
-import jetbrains.buildServer.agent.BuildFinishedStatus;
-import jetbrains.buildServer.agent.BuildProgressLogger;
-import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.agent.*;
 import jetbrains.buildServer.messages.BuildMessage1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -185,11 +182,17 @@ public class ParasoftFindingsBuildProcessTest {
         File testReport = new File(reportDirPath + "/invalidReport.xml");
         File pmdReport = new File( reportDirPath + "/pmd-invalidReport.xml");
         File pmdCpdReport = new File(reportDirPath + "/pmdCpd-invalidReport.xml");
+        File logDir = new File("buildAgent/logs");
         setupMockedDataForTransformation("reports/invalidReport.xml");
 
+        ParasoftFindingsBuildProcess buildProcess = new ParasoftFindingsBuildProcess(build, context);
+        BuildAgentConfiguration buildAgentConfiguration = Mockito.mock(BuildAgentConfiguration.class);
+        doReturn(buildAgentConfiguration).when(build).getAgentConfiguration();
+        doReturn(logDir).when(buildAgentConfiguration).getAgentLogsDirectory();
+
         // When
-        BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
-        int invalidReportCount = parasoftFindingsBuildProcess.getInvalidReportCount();
+        BuildFinishedStatus status = buildProcess.call();
+        int invalidReportCount = buildProcess.getInvalidReportCount();
 
         // Then
         Assertions.assertFalse(pmdReport.exists());
@@ -201,7 +204,9 @@ public class ParasoftFindingsBuildProcessTest {
         Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).warning(Mockito.isA(String.class));
         Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).buildFailureDescription(Mockito.isA(String.class));
 
-        Mockito.verify(buildProgressLogger).error("Unexpected report format: "+testReport.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support.");
+        Mockito.verify(buildProgressLogger).error("Unexpected report format: "+testReport.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support. \n"
+                                                   + "See log for details：" + logDir + "\\wrapper.log");
+        Mockito.verify(buildProgressLogger).error("The markup in the document following the root element must be well-formed.");
         Mockito.verify(buildProgressLogger).warning("Skipping unrecognized report file: " + testReport.getAbsolutePath());
         Mockito.verify(buildProgressLogger).buildFailureDescription("Failed to parse XML report");
     }

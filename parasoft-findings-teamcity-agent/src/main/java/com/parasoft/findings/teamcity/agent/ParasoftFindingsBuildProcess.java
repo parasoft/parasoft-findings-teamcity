@@ -206,7 +206,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         } catch (Exception e) {
-            reportUnexpectedFormat(from);
+            reportUnexpectedFormat(from, e.getMessage());
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
         return descriptors;
@@ -259,20 +259,24 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                             ("##teamcity[importData type='"+type+"' path='"+relativePath + "']"));
                 }
             } else {
-                reportUnexpectedFormat(from);
+                reportUnexpectedFormat(from, null);
             }
         } catch (TransformerException e) {
-            reportUnexpectedFormat(from);
+            reportUnexpectedFormat(from, e.getMessage());
             LOG.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
-            reportUnexpectedFormat(from);
+            reportUnexpectedFormat(from, e.getMessage());
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    private void reportUnexpectedFormat(File from) {
+    private void reportUnexpectedFormat(File from, String errorMessage) {
         _invalidReportCount++;
-        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support.");
+        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support. \n"
+                                       + "See log for details：" + _build.getAgentConfiguration().getAgentLogsDirectory() + "\\wrapper.log");
+       if (errorMessage != null) {
+           _build.getBuildLogger().error(errorMessage);
+       }
     }
 
     private void parsePmdReportAndLogInspections(File pmdReport) {
@@ -331,7 +335,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         } catch (Exception e) {
-            reportUnexpectedFormat(pmdReport);
+            reportUnexpectedFormat(pmdReport, e.getMessage());
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
