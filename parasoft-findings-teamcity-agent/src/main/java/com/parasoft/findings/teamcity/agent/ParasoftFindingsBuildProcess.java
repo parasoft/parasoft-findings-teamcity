@@ -206,7 +206,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         } catch (Exception e) {
-            reportUnexpectedFormat(from, e.getMessage());
+            reportUnexpectedFormat(from, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
         return descriptors;
@@ -262,21 +262,21 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 reportUnexpectedFormat(from, null);
             }
         } catch (TransformerException e) {
-            reportUnexpectedFormat(from, e.getMessage());
+            reportUnexpectedFormat(from, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
-            reportUnexpectedFormat(from, e.getMessage());
+            reportUnexpectedFormat(from, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    private void reportUnexpectedFormat(File from, String errorMessage) {
+    private void reportUnexpectedFormat(File from, Exception error) {
         _invalidReportCount++;
-        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath()+ ". \nPlease try recreating the report. If this does not resolve the issue, please contact Parasoft support. \n"
-                                       + "See log for details：" + _build.getAgentConfiguration().getAgentLogsDirectory() + "\\wrapper.log");
-       if (errorMessage != null) {
-           _build.getBuildLogger().error(errorMessage);
-       }
+        _build.getBuildLogger().error("Unexpected report format: "+from.getAbsolutePath());
+        if (error != null) {
+            _build.getBuildLogger().error(error.getClass().getName() + ": " + error.getMessage());
+        }
+        _build.getBuildLogger().error("Please try recreating the report or see log for details: " + _build.getAgentConfiguration().getAgentLogsDirectory() + "\\wrapper.log");
     }
 
     private void parsePmdReportAndLogInspections(File pmdReport) {
@@ -335,7 +335,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                 }
             }
         } catch (Exception e) {
-            reportUnexpectedFormat(pmdReport, e.getMessage());
+            reportUnexpectedFormat(pmdReport, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
