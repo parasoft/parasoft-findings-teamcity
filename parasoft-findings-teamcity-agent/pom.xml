@@ -18,7 +18,7 @@
     <dependency>
       <groupId>com.parasoft</groupId>
       <artifactId>parasoft-findings-utils</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.teamcity</groupId>
