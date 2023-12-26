@@ -1,5 +1,6 @@
 package com.parasoft.findings.teamcity.agent;
 
+import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.*;
 import jetbrains.buildServer.messages.BuildMessage1;
 import org.junit.jupiter.api.Assertions;
@@ -61,6 +62,55 @@ public class ParasoftFindingsBuildProcessTest {
         Mockito.verify(buildProgressLogger).warning("No properties loaded");
     }
 
+    @Test
+    public void test_transformStaticTestReport_withoutDtpUrlProperty() throws Throwable {
+        // Given
+        File propertiesFile = new File("src/test/resources/settings/incorrectDtpUrlProperty.properties");
+        params.put("settings.location", propertiesFile.getAbsolutePath());
+
+        // When
+        testTransformStaticTestReport();
+
+        // Then
+        Mockito.verify(buildProgressLogger).warning("\"dtp.url\" property not found");
+    }
+
+    @Test
+    public void test_transformStaticTestReport_withIncorrectDtpServerAddress() throws Throwable {
+        // Given
+        params.put("settings.location", "settings/incorrectDtpServerAddress.properties");
+
+        // When
+        testTransformStaticTestReport();
+
+        // Then
+        Mockito.verify(buildProgressLogger).warning("The value of \"dtp.url\" property is invalid for TeamCity. Please ensure that \"https://{domainName}\" is used instead of \"https://{hostName}:{port}\"");
+    }
+
+    @Test
+    public void test_transformStaticTestReport_withUnavailableDtpServer() throws Throwable {
+        // Given
+        params.put("settings.location", "settings/unavailableDtpServer.properties");
+
+        // When
+        testTransformStaticTestReport();
+
+        // Then
+        Mockito.verify(buildProgressLogger).error("DTP server is not available: https://dtp.url.for.test.com");
+    }
+
+    @Test
+    public void test_transformStaticTestReport_localSettingsFileNotFound() throws Throwable {
+        // Given
+        params.put("settings.location", "settings/test.properties");
+
+        // When
+        testTransformStaticTestReport(); // There would be an IOException log printed by "LOG.log()" in the console
+
+        // Then
+        Mockito.verify(buildProgressLogger).error("Local settings file does not exist");
+    }
+
     private void testTransformStaticTestReport() throws Throwable {
         File pmdReport = new File(reportDirPath + "/pmd-cpptest_professional_report.xml");
         File pmdCpdReport = new File(reportDirPath + "/pmdCpd-cpptest_professional_report.xml");
@@ -110,7 +160,8 @@ public class ParasoftFindingsBuildProcessTest {
             setupMockedDataForTransformation("reports/SOAtest_report.xml");
 
             // When
-            BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
+            parasoftFindingsBuildProcess.start();
+            BuildFinishedStatus status = parasoftFindingsBuildProcess.waitFor();
             String pmdReportSize = new DecimalFormat("0.00").format(pmdReport.length()/1024f);
             int invalidReportCount = parasoftFindingsBuildProcess.getInvalidReportCount();
 
@@ -209,6 +260,21 @@ public class ParasoftFindingsBuildProcessTest {
         Mockito.verify(buildProgressLogger).error("Please try recreating the report or see log for details: " + logDir + "\\wrapper.log");
         Mockito.verify(buildProgressLogger).warning("Skipping unrecognized report file: " + testReport.getAbsolutePath());
         Mockito.verify(buildProgressLogger).buildFailureDescription("Failed to parse XML report");
+    }
+
+    @Test
+    public void test_buildProcess_cancelProcess() throws RunBuildException {
+        // Given
+        parasoftFindingsBuildProcess.start();
+
+        // When
+        parasoftFindingsBuildProcess.interrupt();
+        // There would be an CancellationException log printed by "LOG.log()" in the console
+        BuildFinishedStatus testResult = parasoftFindingsBuildProcess.waitFor();
+
+        // Then
+        Assertions.assertEquals(BuildFinishedStatus.INTERRUPTED, testResult);
+        Assertions.assertTrue(parasoftFindingsBuildProcess.isInterrupted());
     }
 
     private void setupMockedDataForTransformation(String reportLocation) {
