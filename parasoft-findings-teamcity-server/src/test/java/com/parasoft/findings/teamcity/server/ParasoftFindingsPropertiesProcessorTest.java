@@ -26,9 +26,10 @@ public class ParasoftFindingsPropertiesProcessorTest {
     @Test
     public void test_process_emptyReportLocation() {
         Collection<InvalidProperty> testResults = parasoftFindingsPropertiesProcessor.process(new HashMap<>());
-        InvalidProperty expectedInvalidProperty = new InvalidProperty(REPORTS_LOCATION, "Please specify report location pattern.");
 
+        InvalidProperty invalidProperty = testResults.iterator().next();
         Assertions.assertEquals(1, testResults.size());
-        Assertions.assertTrue(testResults.contains(expectedInvalidProperty));
+        Assertions.assertEquals(REPORTS_LOCATION, invalidProperty.getPropertyName());
+        Assertions.assertEquals("Please specify report location pattern.", invalidProperty.getInvalidReason());
     }
 }
