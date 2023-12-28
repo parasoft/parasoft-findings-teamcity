@@ -257,7 +257,7 @@ public class ParasoftFindingsBuildProcessTest {
 
         Mockito.verify(buildProgressLogger).error("Unexpected report format: "+testReport.getAbsolutePath());
         Mockito.verify(buildProgressLogger).error("org.xml.sax.SAXParseException: The markup in the document following the root element must be well-formed.");
-        Mockito.verify(buildProgressLogger).error("Please try recreating the report or see log for details: " + logDir + "\\wrapper.log");
+        Mockito.verify(buildProgressLogger).error("Please try recreating the report or see log for details: " + logDir + File.separator + "wrapper.log");
         Mockito.verify(buildProgressLogger).warning("Skipping unrecognized report file: " + testReport.getAbsolutePath());
         Mockito.verify(buildProgressLogger).buildFailureDescription("Failed to parse XML report");
     }

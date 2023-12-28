@@ -276,7 +276,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         if (error != null) {
             _build.getBuildLogger().error(error.getClass().getName() + ": " + error.getMessage());
         }
-        _build.getBuildLogger().error("Please try recreating the report or see log for details: " + _build.getAgentConfiguration().getAgentLogsDirectory() + "\\wrapper.log");
+        _build.getBuildLogger().error("Please try recreating the report or see log for details: " + _build.getAgentConfiguration().getAgentLogsDirectory() + File.separator +"wrapper.log");
     }
 
     private void parsePmdReportAndLogInspections(File pmdReport) {
