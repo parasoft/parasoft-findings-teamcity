@@ -20,6 +20,7 @@ import com.parasoft.findings.teamcity.common.ParasoftFindingsProperties;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor;
 import com.parasoft.findings.teamcity.common.ReportParserDescriptor.ReportParserType;
 import com.parasoft.findings.teamcity.common.ReportParserTypes;
+import com.parasoft.findings.utils.common.util.XMLUtil;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.AgentRunningBuild;
 import jetbrains.buildServer.agent.BuildFinishedStatus;
@@ -37,6 +38,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -189,17 +191,17 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private List<ReportParserDescriptor> getReportParserDescriptors(File from) {
         List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
-            Document document = getDocument(from);
-            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/*[not(name()='DupViol')]")) {
+            ReportParserHandler handler = parseReport(from);
+            if (handler.hasStdViolElement()) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
             }
 
-            if (checkIfNodeExists(document, "/ResultsSession/CodingStandards/StdViols/DupViol")) {
+            if (handler.hasDupViolElement()) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD_CPD.name()));
             }
 
-            if (checkIfNodeExists(document, "/ResultsSession/Exec")) {
-                if (checkIfNodeExists(document, "/ResultsSession[contains(@toolName,'SOAtest')]")) {
+            if (handler.hasExecElement()) {
+                if (handler.isSOAtestReport()) {
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
                 } else {
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name()));
@@ -225,9 +227,11 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
     }
 
-    private boolean checkIfNodeExists(Document document, String xpathExpression) throws XPathExpressionException {
-        NodeList nodes = getNodes(document, xpathExpression);
-        return nodes != null && nodes.getLength() > 0;
+    private ReportParserHandler parseReport(File file) throws ParserConfigurationException, SAXException, IOException {
+        SAXParser parser = XMLUtil.createSAXParser();
+        ReportParserHandler handler = new ReportParserHandler();
+        parser.parse(file, handler);
+        return handler;
     }
 
     private void transform(File from, File to, String xslFile, File checkoutDir) {
