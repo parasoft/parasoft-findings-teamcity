@@ -29,15 +29,7 @@ import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -51,7 +43,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -191,7 +183,9 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private List<ReportParserDescriptor> getReportParserDescriptors(File from) {
         List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
-            ReportAnalysisHandler handler = analyseReport(from);
+            SAXParser parser = XMLUtil.createSAXParser();
+            ParasoftReportAnalysisHandler handler = new ParasoftReportAnalysisHandler();
+            parser.parse(from, handler);
             if (handler.hasViolsExceptDupViol()) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
             }
@@ -212,26 +206,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
         return descriptors;
-    }
-
-    private Document getDocument(File file) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(file);
-    }
-
-    private NodeList getNodes(Document document, String xpathExpression) throws XPathExpressionException {
-        XPath xpath = xpathFactory.newXPath();
-        XPathExpression expr = xpath.compile(xpathExpression);
-        return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
-    }
-
-    private ReportAnalysisHandler analyseReport(File file) throws ParserConfigurationException, SAXException, IOException {
-        SAXParser parser = XMLUtil.createSAXParser();
-        ReportAnalysisHandler handler = new ReportAnalysisHandler();
-        parser.parse(file, handler);
-        return handler;
     }
 
     private void transform(File from, File to, String xslFile, File checkoutDir) {
@@ -289,55 +263,41 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         _build.getBuildLogger().message("Importing data from '"+relativePath+"' ("+fileSize+" KB) with 'message service' processor");
 
         try {
+            SAXParser parser = XMLUtil.createSAXParser();
+            PmdReportParseHandler handler = new PmdReportParseHandler();
+            parser.parse(pmdReport, handler);
+
             Set<String> inspectionTypeIds = new HashSet<String>();
-            Document document = getDocument(pmdReport);
+            handler.getPmdViolations().forEach(pmdViolation -> {
+                String cit_rule = pmdViolation.getRule();
+                String cit_category = pmdViolation.getruleSet();
+                String ruleAnalyzerId = pmdViolation.getruleAnalyzer();
 
-            // Handle file elements
-            NodeList fileNodes = getNodes(document, "/pmd/file");
-            for (int i = 0; i < fileNodes.getLength(); i++) {
-                Node fileNode = fileNodes.item(i);
-                if (Node.ELEMENT_NODE != fileNode.getNodeType()) {
-                    continue;
+                String cit_descriptionOrUrl = null;
+                if (_ruleDocumentationUrlProvider != null) {
+                    if (StringUtils.isEmpty(ruleAnalyzerId)) {
+                        String violationType = pmdViolation.getType();
+                        String categoryId = pmdViolation.getcategoryId();
+                        ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
+                    }
+                    cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
                 }
-                NamedNodeMap fileAttributes = fileNode.getAttributes();
+                if (cit_descriptionOrUrl == null) {
+                    cit_descriptionOrUrl = "<html><body>"+escapeString(pmdViolation.getruleDescription())+"</body></html>";
+                }
+                String ci_message = pmdViolation.getMessage();
+                String ci_line = pmdViolation.getbeginLine();
+                String ci_fileLocation = pmdViolation.getFileName();
+                String ci_severityNumber = pmdViolation.getPriority();
 
-                // Handle violation elements
-                NodeList violationNodes = fileNode.getChildNodes();
-                for (int j = 0; j < violationNodes.getLength(); j++) {
-                    Node violationNode = violationNodes.item(j);
-                    if (Node.ELEMENT_NODE != violationNode.getNodeType()) {
-                        continue;
-                    }
-                    NamedNodeMap violationAttributes = violationNode.getAttributes();
-                    String cit_rule = violationAttributes.getNamedItem("rule").getNodeValue();
-                    String cit_category = violationAttributes.getNamedItem("ruleset").getNodeValue();
-                    String ruleAnalyzerId = violationAttributes.getNamedItem("ruleanalyzer").getNodeValue();
-                    String cit_descriptionOrUrl = null;
-                    if (_ruleDocumentationUrlProvider != null) {
-                        if (StringUtils.isEmpty(ruleAnalyzerId)) {
-                            String violationType = violationAttributes.getNamedItem("type").getNodeValue();
-                            String categoryId = violationAttributes.getNamedItem("categoryid").getNodeValue();
-                            ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
-                        }
-                        cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
-                    }
-                    if (cit_descriptionOrUrl == null) {
-                        cit_descriptionOrUrl = "<html><body>"+escapeString(violationAttributes.getNamedItem("ruledescription").getNodeValue())+"</body></html>";
-                    }
-                    String ci_message = violationNode.getTextContent();
-                    String ci_line = violationAttributes.getNamedItem("beginline").getNodeValue();
-                    String ci_fileLocation = fileAttributes.getNamedItem("name").getNodeValue();
-                    String ci_severityNumber = violationAttributes.getNamedItem("priority").getNodeValue();
-
-                    if (!inspectionTypeIds.contains(cit_rule)) {
-                        inspectionTypeIds.add(cit_rule);
-                        _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                                ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='"+cit_descriptionOrUrl+"' category='"+escapeString(cit_category)+"']"));
-                    }
+                if (!inspectionTypeIds.contains(cit_rule)) {
+                    inspectionTypeIds.add(cit_rule);
                     _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                            ("##teamcity[inspection typeId='"+cit_rule+"' message='"+escapeString(ci_message)+"' file='"+ci_fileLocation+"' line='"+ci_line+"' SEVERITY='"+convertSeverity(ci_severityNumber)+"']"));
+                            ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='"+cit_descriptionOrUrl+"' category='"+escapeString(cit_category)+"']"));
                 }
-            }
+                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
+                        ("##teamcity[inspection typeId='"+cit_rule+"' message='"+escapeString(ci_message)+"' file='"+ci_fileLocation+"' line='"+ci_line+"' SEVERITY='"+convertSeverity(ci_severityNumber)+"']"));
+            });
         } catch (Exception e) {
             reportUnexpectedFormat(pmdReport, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);

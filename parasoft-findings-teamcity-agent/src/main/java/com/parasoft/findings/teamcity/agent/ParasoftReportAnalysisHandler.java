@@ -6,14 +6,14 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.Stack;
 
-public class ReportAnalysisHandler extends DefaultHandler {
+public class ParasoftReportAnalysisHandler extends DefaultHandler {
     private boolean hasViolsExceptDupViol = false;
     private boolean hasDupViols = false;
     private boolean hasTestExecutions = false;
     private boolean isSOAtestReport = false;
     private final Stack<String> stack;
 
-    public ReportAnalysisHandler() {
+    public ParasoftReportAnalysisHandler() {
         stack = new Stack<>();
     }
 
