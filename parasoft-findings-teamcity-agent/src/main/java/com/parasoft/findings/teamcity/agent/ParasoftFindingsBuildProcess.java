@@ -191,16 +191,16 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private List<ReportParserDescriptor> getReportParserDescriptors(File from) {
         List<ReportParserDescriptor> descriptors = new ArrayList<ReportParserDescriptor>();
         try {
-            ReportParserHandler handler = parseReport(from);
-            if (handler.hasStdViolElement()) {
+            ReportAnalysisHandler handler = analyseReport(from);
+            if (handler.hasViolsExceptDupViol()) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD.name()));
             }
 
-            if (handler.hasDupViolElement()) {
+            if (handler.hasDupViols()) {
                 descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SA_PMD_CPD.name()));
             }
 
-            if (handler.hasExecElement()) {
+            if (handler.hasTestExecutions()) {
                 if (handler.isSOAtestReport()) {
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.SOATEST.name()));
                 } else {
@@ -227,9 +227,9 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
     }
 
-    private ReportParserHandler parseReport(File file) throws ParserConfigurationException, SAXException, IOException {
+    private ReportAnalysisHandler analyseReport(File file) throws ParserConfigurationException, SAXException, IOException {
         SAXParser parser = XMLUtil.createSAXParser();
-        ReportParserHandler handler = new ReportParserHandler();
+        ReportAnalysisHandler handler = new ReportAnalysisHandler();
         parser.parse(file, handler);
         return handler;
     }
