@@ -57,35 +57,35 @@ public class PmdReportParseHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("violation")) {
-            _currentPmdViolation = _currentPmdViolation.setMessage(_currentTextOfViolationNode.toString().trim());
-            uploadInspectionAndType(_currentPmdViolation);
+            _currentPmdViolation.setMessage(_currentTextOfViolationNode.toString().trim());
+            uploadInspectionAndType();
             _currentPmdViolation = null;
         } else if (qName.equals("file")) {
             _currentFileName = null;
         }
     }
 
-    private void uploadInspectionAndType(PmdViolation pmdViolation) {
-        String cit_rule = pmdViolation.getRule();
-        String cit_category = pmdViolation.getruleSet();
-        String ruleAnalyzerId = pmdViolation.getruleAnalyzer();
+    private void uploadInspectionAndType() {
+        String cit_rule = _currentPmdViolation.getRule();
+        String cit_category = _currentPmdViolation.getruleSet();
+        String ruleAnalyzerId = _currentPmdViolation.getruleAnalyzer();
 
         String cit_descriptionOrUrl = null;
         if (_ruleDocumentationUrlProvider != null) {
             if (StringUtils.isEmpty(ruleAnalyzerId)) {
-                String violationType = pmdViolation.getType();
-                String categoryId = pmdViolation.getcategoryId();
+                String violationType = _currentPmdViolation.getType();
+                String categoryId = _currentPmdViolation.getcategoryId();
                 ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
             }
             cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
         }
         if (cit_descriptionOrUrl == null) {
-            cit_descriptionOrUrl = "<html><body>"+escapeString(pmdViolation.getruleDescription())+"</body></html>";
+            cit_descriptionOrUrl = "<html><body>"+escapeString(_currentPmdViolation.getruleDescription())+"</body></html>";
         }
-        String ci_message = pmdViolation.getMessage();
-        String ci_line = pmdViolation.getbeginLine();
-        String ci_fileLocation = pmdViolation.getFileName();
-        String ci_severityNumber = pmdViolation.getPriority();
+        String ci_message = _currentPmdViolation.getMessage();
+        String ci_line = _currentPmdViolation.getbeginLine();
+        String ci_fileLocation = _currentPmdViolation.getFileName();
+        String ci_severityNumber = _currentPmdViolation.getPriority();
 
         if (!_inspectionTypeIds.contains(cit_rule)) {
             _inspectionTypeIds.add(cit_rule);
