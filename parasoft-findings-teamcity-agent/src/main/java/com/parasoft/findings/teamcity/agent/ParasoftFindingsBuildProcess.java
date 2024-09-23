@@ -28,7 +28,6 @@ import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
-import org.springframework.util.StringUtils;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.stream.XMLEventReader;
@@ -43,7 +42,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,7 +61,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
 
-    private static final XPathFactory xpathFactory = XPathFactory.newInstance();
     private static final TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private BuildRunnerContext _context;
@@ -264,40 +261,8 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
         try {
             SAXParser parser = XMLUtil.createSAXParser();
-            PmdReportParseHandler handler = new PmdReportParseHandler();
+            PmdReportParseHandler handler = new PmdReportParseHandler(_build, _ruleDocumentationUrlProvider);
             parser.parse(pmdReport, handler);
-
-            Set<String> inspectionTypeIds = new HashSet<String>();
-            handler.getPmdViolations().forEach(pmdViolation -> {
-                String cit_rule = pmdViolation.getRule();
-                String cit_category = pmdViolation.getruleSet();
-                String ruleAnalyzerId = pmdViolation.getruleAnalyzer();
-
-                String cit_descriptionOrUrl = null;
-                if (_ruleDocumentationUrlProvider != null) {
-                    if (StringUtils.isEmpty(ruleAnalyzerId)) {
-                        String violationType = pmdViolation.getType();
-                        String categoryId = pmdViolation.getcategoryId();
-                        ruleAnalyzerId = mapToAnalyzer(violationType, categoryId);
-                    }
-                    cit_descriptionOrUrl = _ruleDocumentationUrlProvider.getRuleDocUrl(ruleAnalyzerId, cit_rule);
-                }
-                if (cit_descriptionOrUrl == null) {
-                    cit_descriptionOrUrl = "<html><body>"+escapeString(pmdViolation.getruleDescription())+"</body></html>";
-                }
-                String ci_message = pmdViolation.getMessage();
-                String ci_line = pmdViolation.getbeginLine();
-                String ci_fileLocation = pmdViolation.getFileName();
-                String ci_severityNumber = pmdViolation.getPriority();
-
-                if (!inspectionTypeIds.contains(cit_rule)) {
-                    inspectionTypeIds.add(cit_rule);
-                    _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                            ("##teamcity[inspectionType id='"+cit_rule+"' name='"+cit_rule+"' description='"+cit_descriptionOrUrl+"' category='"+escapeString(cit_category)+"']"));
-                }
-                _build.getBuildLogger().logMessage(DefaultMessagesInfo.createTextMessage
-                        ("##teamcity[inspection typeId='"+cit_rule+"' message='"+escapeString(ci_message)+"' file='"+ci_fileLocation+"' line='"+ci_line+"' SEVERITY='"+convertSeverity(ci_severityNumber)+"']"));
-            });
         } catch (Exception e) {
             reportUnexpectedFormat(pmdReport, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
@@ -352,22 +317,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         return null;
     }
 
-    private String mapToAnalyzer(String violationType, String categoryId) {
-        switch (violationType){
-            case "DupViol":
-                return "com.parasoft.xtest.cpp.analyzer.static.dupcode";
-            case "FlowViol":
-                return "com.parasoft.xtest.cpp.analyzer.static.flow";
-            case "MetViol":
-                return "com.parasoft.xtest.cpp.analyzer.static.metrics";
-            default:
-                if ("GLOBAL".equals(categoryId)) {
-                    return "com.parasoft.xtest.cpp.analyzer.static.global";
-                }
-                return "com.parasoft.xtest.cpp.analyzer.static.pattern";
-        }
-    }
-
     protected void transformFailed() {
         _transformFailed = true;
     }
@@ -393,23 +342,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
         public void fatalError(TransformerException e) throws TransformerException {
             LOG.log(Level.SEVERE, e.getMessage(), e);
             _process.transformFailed();
-        }
-    }
-
-    private String escapeString(String str) {
-        return str.replace("|", "||")
-                .replace("'", "|'")
-                .replace("[", "|[")
-                .replace("]", "|]")
-                .replace("\n", "|n")
-                .replace("\r", "|r");
-    }
-
-    private String convertSeverity(String severityNumber) {
-        if (Objects.equals(severityNumber, "1")) {
-            return "ERROR";
-        } else {
-            return "WARNING";
         }
     }
 
