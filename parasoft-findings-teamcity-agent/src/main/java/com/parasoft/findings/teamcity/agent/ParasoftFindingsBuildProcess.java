@@ -29,6 +29,7 @@ import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.messages.DefaultMessagesInfo;
 import jetbrains.buildServer.util.pathMatcher.AntPatternFileCollector;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -60,8 +61,6 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
 
     private static final Logger LOG = Logger.getLogger
             (ParasoftFindingsBuildProcess.class.getName()); // logs into ./buildAgent/logs/wrapper.log
-
-    private static final TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private BuildRunnerContext _context;
     private AgentRunningBuild _build;
@@ -136,7 +135,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     "Failed to parse XML report";
                 _build.getBuildLogger().buildFailureDescription(description);
             }
-        } catch (final Throwable t) {
+        } catch (final Throwable t) { // parasoft-suppress OWASP2021.A5.NCE "This is intentionally designed to prevent exceptions from bubbling up and causing the program to terminate."
             LOG.log(Level.SEVERE, t.getMessage(), t);
             status = BuildFinishedStatus.FINISHED_FAILED;
         }
@@ -198,7 +197,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
                     descriptors.add(ReportParserTypes.getDescriptor(ReportParserType.ANALYZERS.name()));
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e) { // parasoft-suppress OWASP2021.A5.NCE "This is intentionally designed to prevent exceptions from bubbling up and causing the program to terminate."
             reportUnexpectedFormat(from, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -208,6 +207,11 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
     private void transform(File from, File to, String xslFile, File checkoutDir) {
         _transformFailed = false;
         try {
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            // https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#transformerfactory
+            tFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); //$NON-NLS-1$
+            tFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, ""); //$NON-NLS-1$
+
             StreamSource xml = new StreamSource(new FileInputStream(from));
             StreamSource xsl = new StreamSource(getClass().getResourceAsStream(xslFile));
             StreamResult target = new StreamResult(to);
@@ -263,7 +267,7 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             SAXParser parser = XMLUtil.createSAXParser();
             PmdReportParseHandler handler = new PmdReportParseHandler(_build, _ruleDocumentationUrlProvider);
             parser.parse(pmdReport, handler);
-        } catch (Exception e) {
+        } catch (Exception e) { // parasoft-suppress OWASP2021.A5.NCE "This is intentionally designed to prevent exceptions from bubbling up and causing the program to terminate."
             reportUnexpectedFormat(pmdReport, e);
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -302,15 +306,15 @@ public class ParasoftFindingsBuildProcess implements BuildProcess, Callable<Buil
             if (in != null) {
                 try {
                     in.close();
-                } catch (Throwable t) {
-                    // ignore
+                } catch (Throwable t) { // parasoft-suppress OWASP2021.A5.NCE "This is intentionally designed to prevent exceptions from bubbling up and causing the program to terminate."
+                    LOG.log(Level.SEVERE, t.getMessage(), t);
                 }
             }
             if (eventReader != null) {
                 try {
                     eventReader.close();
-                } catch (Throwable t) {
-                    // ignore
+                } catch (Throwable t) { // parasoft-suppress OWASP2021.A5.NCE "This is intentionally designed to prevent exceptions from bubbling up and causing the program to terminate."
+                    LOG.log(Level.SEVERE, t.getMessage(), t);
                 }
             }
         }
