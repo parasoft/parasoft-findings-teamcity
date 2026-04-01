@@ -213,6 +213,62 @@ public class ParasoftFindingsBuildProcessTest {
     }
 
     @Test
+    public void test_transformUnitTestReport_jTest_2025_2_0_unit_zero_total_test() throws Throwable {
+        File junitReport = new File(reportDirPath + "/junit-jTest_2025.2.0_unit_zero_total_test.xml");
+        File testReport = new File(reportDirPath + "/jTest_2025.2.0_unit_zero_total_test.xml");
+
+        try {
+            // Given
+            setupMockedDataForTransformation("reports/jTest_2025.2.0_unit_zero_total_test.xml");
+
+            // When
+            BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
+            int invalidReportCount = parasoftFindingsBuildProcess.getInvalidReportCount();
+
+            // Then
+            Assertions.assertTrue(junitReport.exists());
+            Assertions.assertEquals(status.name(), "FINISHED_SUCCESS");
+            Assertions.assertEquals(invalidReportCount, 0);
+
+            Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).message(Mockito.isA(String.class));
+            Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).logMessage(Mockito.isA(BuildMessage1.class));
+
+            Mockito.verify(buildProgressLogger).message("Transforming " + testReport.getAbsolutePath() + " with Parasoft Analyzers");
+            Mockito.verify(buildProgressLogger).message("Generated report with transformation: " + junitReport.getAbsolutePath());
+        } finally {
+            deleteIfExists(junitReport);
+        }
+    }
+
+    @Test
+    public void test_transformUnitTestReport_jTest_2025_2_0_unit_no_ExecutedTestsDetails_tag() throws Throwable {
+        File junitReport = new File(reportDirPath + "/junit-jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag.xml");
+        File testReport = new File(reportDirPath + "/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag.xml");
+
+        try {
+            // Given
+            setupMockedDataForTransformation("reports/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag.xml");
+
+            // When
+            BuildFinishedStatus status = parasoftFindingsBuildProcess.call();
+            int invalidReportCount = parasoftFindingsBuildProcess.getInvalidReportCount();
+
+            // Then
+            Assertions.assertTrue(junitReport.exists());
+            Assertions.assertEquals(status.name(), "FINISHED_SUCCESS");
+            Assertions.assertEquals(invalidReportCount, 0);
+
+            Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).message(Mockito.isA(String.class));
+            Mockito.verify(buildProgressLogger, Mockito.atLeastOnce()).logMessage(Mockito.isA(BuildMessage1.class));
+
+            Mockito.verify(buildProgressLogger).message("Transforming " + testReport.getAbsolutePath() + " with Parasoft Analyzers");
+            Mockito.verify(buildProgressLogger).message("Generated report with transformation: " + junitReport.getAbsolutePath());
+        } finally {
+            deleteIfExists(junitReport);
+        }
+    }
+
+    @Test
     public void test_transform_reportNotFound() throws Throwable {
         // Given
         setupMockedDataForTransformation("report.xml");
