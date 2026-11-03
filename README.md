@@ -4,16 +4,4 @@ The Parasoft Findings plugin is designed to be used in a post test-execution bui
 - For test results, the number of passed/failed tests and result details will be displayed. Trending data in a graph for a simple visualization is also available.
 - For static analysis results, details can be conveniently viewed as code inspection and duplicates results. Navigation to rule documentation is also available. 
 
-For documentation please visit the link [Parasoft Findings for TeamCity](https://www1.parasoft.com/doc/link?product=findingsTeamCity010)
-
-## SOAtest transformation regression tests
-
-Run from the repository root with JDK 17 and Maven:
-
-```sh
-mvn -pl parasoft-findings-teamcity-agent -am test -Dtest=SoatestXunitTransformationTest,ParasoftFindingsBuildProcessTest#test_transformSOATestReport -Dsurefire.failIfNoSpecifiedTests=false
-```
-
-The tests transform the six local reports in `parasoft-findings-teamcity-agent/src/test/resources/reports/soatest-regression` using the plugin's actual stylesheet and the JDK XSLT transformer. They check testcase and failure counts, case association, message fallbacks, and diagnostic details without a SOAtest installation, license, or running service.
-
-The reports originate from the sanitized canonical fixtures in Parasoft's XSLTTemplates project. `SOAtest_functional_execution_violations.xml` and `association_edges.xml` are synthetic regression inputs; `soatest_visual_difference.xml` and the three `soatest_parabank_change_impact_*.xml` files are sanitized report captures. All six fixtures are copied locally so these tests have no dependency on another checkout.
+For documentation please visit the link [Parasoft Findings for TeamCity](https://www1.parasoft.com/doc/link?product=findingsTeamCity010) 
